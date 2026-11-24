@@ -35,7 +35,7 @@ input,select,textarea{width:100%;padding:9px 10px;border-radius:10px;border:1px 
 .rocker{width:48px;height:152px;flex-shrink:0;background:#0d1629;border:1px solid #293852;border-radius:27px;display:flex;flex-direction:column;overflow:hidden}
 .rocker button{flex:1;border:none;background:transparent;color:#f8fafc;font-size:18px;font-weight:800;cursor:pointer}
 .rocker span{text-align:center;font-size:10px;font-weight:800;color:#64748b}
-.dpad-ring{width:182px;height:182px;aspect-ratio:1/1;flex-shrink:0;border-radius:50%;background:radial-gradient(circle at 30% 30%,#1a2947,#0b1324);border:2px solid #293852;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:10px;gap:4px}
+.dpad-ring{width:168px;height:168px;aspect-ratio:1/1;flex-shrink:0;border-radius:50%;background:radial-gradient(circle at 30% 30%,#1a2947,#0b1324);border:2px solid #293852;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:6px;gap:2px}
 .dpad-ring button{border:none;background:transparent;color:#e2e8f0;font-size:16px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:50%;cursor:pointer}
 .dpad-ring .ok{background:linear-gradient(135deg,#10b981,#059669);color:#042f1e;font-size:15px;font-weight:900}
 .numpad{flex:1;min-height:0;display:none;flex-direction:column;gap:6px}
