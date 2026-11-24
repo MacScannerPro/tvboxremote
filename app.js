@@ -1,3 +1,4 @@
+function editIp(){const v=devSel.value;if(v===''||v==='LOCAL'||!DEVS[v]){toast('Seleziona prima una TV dalla lista');return;}const cur=DEVS[v].ip||'192.168.1.';const nip=(prompt('IP Locale di '+DEVS[v].name+' (es. 192.168.1.86):',cur)||'').trim();if(!nip)return;DEVS[v].ip=nip.includes(':')?nip:nip+':8898';saveDevs();toast('IP salvato: '+DEVS[v].ip);}
 function openLan(){if(IS_LAN){toast('Sei gi? in Wi-Fi / LAN Diretto!');return;}const v=devSel.value;let ip=(v!==''&&DEVS[v]&&DEVS[v].ip)?DEVS[v].ip:'';if(!ip){ip=(prompt('Inserisci IP mostrato sulla TV (es. 192.168.1.86):','192.168.1.')||'').trim();if(!ip)return;if(!ip.includes(':'))ip+=':8898';if(v!==''&&DEVS[v]){DEVS[v].ip=ip;saveDevs();}}if(!ip.includes(':'))ip+=':8898';window.open('http://'+ip.replace(/^https?:\/\//,''),'_blank');}
 ﻿let ST={playlists:[],current:null,categories:[],channels:[]},ED=[],DEVS=JSON.parse(localStorage.getItem('tvbox_devs')||'[]');
 const IS_LAN=location.port==='8898';
