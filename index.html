@@ -1,0 +1,36 @@
+<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>TvBox Remote</title><link rel="manifest" href="manifest.json"><link rel="stylesheet" href="styles.css"></head><body>
+<div class="top"><div class="brand"><span class="dot"></span>TvBox Remote</div><div class="modes"><button id="mCloud" class="mbtn on" onclick="setMode('cloud')">Cloud</button><button id="mLan" class="mbtn" onclick="openLan()">Wi-Fi / LAN</button><input id="lanIp" placeholder="192.168.x.x:8898"></div></div>
+<div id="cloudBar" class="cbar"><input id="macIn" placeholder="MAC TV (TB-XX:XX:XX:XX)"><input id="pinIn" placeholder="PIN (6 cifre)"><button class="btn" style="width:auto;padding:8px 12px" onclick="savePair()">ABBINA</button></div>
+<div id="p0" class="page on"><div class="remote-wrap">
+  <div class="now-card"><div class="now-top"><div id="curCh" class="now-ch">Nessun canale</div><div id="curGrp" class="now-grp">LIVE</div></div><div id="curNow" class="now-epg">Pronto</div><div class="prog"><div id="curBar" class="prog-fill"></div></div></div>
+  <div class="dpad-zone">
+    <div class="rocker"><button class="rbtn" onclick="cmd('vol_up')">VOL +</button><div class="rlbl">AUDIO</div><button class="rbtn" onclick="cmd('vol_down')">VOL -</button></div>
+    <div class="dpad-ring"><button class="dbtn d-up" onclick="cmd('up')">?</button><button class="dbtn d-left" onclick="cmd('left')">?</button><button class="dbtn d-ok" onclick="cmd('ok')">OK</button><button class="dbtn d-right" onclick="cmd('right')">?</button><button class="dbtn d-down" onclick="cmd('down')">?</button></div>
+    <div class="rocker"><button class="rbtn" onclick="cmd('ch_up')">CH ?</button><div class="rlbl">CANALI</div><button class="rbtn" onclick="cmd('ch_down')">CH ?</button></div>
+  </div>
+  <div class="qbar"><button class="qbtn" onclick="cmd('back')">INDIETRO</button><button class="qbtn" onclick="cmd('mute')">MUTE</button><button class="qbtn" onclick="cmd('guide')">GUIDA TV</button><button class="qbtn" onclick="cmd('ok_long')">MENU PLAYER</button><button class="qbtn" onclick="cmd('pip')">PiP</button><button class="qbtn" onclick="cmd('aspect')">ASPETTO</button></div>
+</div></div>
+<div id="p1" class="page"><div class="scroll" style="display:flex;flex-direction:column;gap:8px"><div class="row"><input id="qCh" placeholder="Cerca canale..." oninput="renderCh()"><select id="catSel" onchange="renderCh()"><option value="">Tutte le categorie</option></select></div><div id="chList" class="list"></div></div></div>
+<div id="p2" class="page"><div class="scroll" style="display:flex;flex-direction:column;gap:8px">
+  <div class="row"><input id="raw" placeholder="Incolla URL M3U/Xtream/W3U, MAC o testo..."><label style="padding:8px 10px;border-radius:10px;background:#1e293b;color:#38bdf8;font-size:11px;font-weight:800;cursor:pointer">FILE<input type="file" accept=".m3u,.m3u8,.w3u,.txt,.json,.xspf,.pls,.tv" style="display:none" onchange="loadTxtFile(this)"></label></div>
+  <div class="row"><select id="t" onchange="togFields()"><option value="m3u">Lista M3U / Wiseplay / Ace</option><option value="xtream">Xtream Codes</option><option value="stalker">Stalker / MAC</option></select><input id="n" placeholder="Nome lista"></div>
+  <input id="u" placeholder="URL Portale / M3U / W3U">
+  <div id="fXt" style="display:none" class="row"><input id="us" placeholder="Username"><input id="pw" placeholder="Password"></div>
+  <div id="fSt" style="display:none;flex-direction:column;gap:6px"><div class="row"><input id="m" placeholder="MAC 00:1A:79:..."><input id="sn" placeholder="S/N"></div><div class="row"><input id="d1" placeholder="Device ID 1"><input id="d2" placeholder="Device ID 2"></div></div>
+  <div class="row"><select id="vp"><option value="any">VPN: Libera</option><option value="no_vpn">VPN: Escludi (DTT)</option><option value="require_vpn">VPN: Richiedi</option><option value="warp_1111">Cloudflare 1.1.1.1</option></select><select id="vc"><option value="">Paese: Auto</option><option value="Italia">Italia</option><option value="Svizzera">Svizzera</option><option value="Regno Unito">Regno Unito</option><option value="Spagna">Spagna</option><option value="Francia">Francia</option><option value="Germania">Germania</option></select></div>
+  <button class="btn" onclick="sendPl()">INVIA LISTA AL TV BOX</button>
+  <div id="plList" class="list"></div>
+</div></div>
+<div id="p3" class="page"><div class="scroll" style="display:flex;flex-direction:column;gap:8px"><textarea id="m3uTxt" rows="8" placeholder="#EXTM3U&#10;#EXTINF:-1,Canale 1&#10;http://..."></textarea><button class="btn" onclick="sendCustomM3u()">INVIA LISTA PERSONALIZZATA</button></div></div>
+<div id="p4" class="page"><div class="scroll" style="display:flex;flex-direction:column;gap:8px">
+  <div style="font-size:11px;font-weight:800;color:#f59e0b">CINETECA WEB (URL LISTA .TXT / SORGENTI)</div>
+  <div class="row"><input id="cinU" placeholder="URL file .txt o link sorgente..."><button class="btn" style="width:auto;padding:9px 12px" onclick="sendCin()">INVIA</button></div>
+  <div style="font-size:11px;font-weight:800;color:#38bdf8">DOWNLOADER SAFE (CODICE BREVE O URL ? DOWNLOAD TV)</div>
+  <div class="row"><input id="dlCode" placeholder="Codice (es. 250931) o URL https://..."><button class="btn" style="width:auto;padding:9px 12px" onclick="dlUrl()">SCARICA</button></div>
+  <div id="dlSt" style="font-size:11px;color:#10b981"></div>
+  <input id="epgU" placeholder="URL Guida TV XMLTV"><button class="btn blue" onclick="sendEpg()">AGGIUNGI GUIDA EPG</button>
+  <button class="btn gray" onclick="restartTv()">RIAVVIA PLAYER SULLA TV</button>
+</div></div>
+<div id="toast" class="toast"></div>
+<div class="nav"><button class="nbtn on" onclick="tab(0,this)">Telecomando</button><button class="nbtn" onclick="tab(1,this)">Canali</button><button class="nbtn" onclick="tab(2,this)">Liste TV</button><button class="nbtn" onclick="tab(3,this)">Editor</button><button class="nbtn" onclick="tab(4,this)">Altro</button></div>
+<script src="app.js"></script></body></html>
