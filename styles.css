@@ -31,12 +31,12 @@ input,select,textarea{width:100%;padding:9px 10px;border-radius:10px;border:1px 
 .seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#070d19;padding:4px;border-radius:11px;border:1px solid #1e293b;flex-shrink:0}
 .seg button{padding:7px;border-radius:8px;border:none;background:transparent;color:#94a3b8;font-weight:700;font-size:12px;cursor:pointer}
 .seg button.act{background:#0284c7;color:#fff}
-.rc-stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 0}
-.rocker{width:54px;height:156px;background:#0d1629;border:1px solid #293852;border-radius:27px;display:flex;flex-direction:column;overflow:hidden}
+.rc-stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;gap:16px;padding:4px 0}
+.rocker{width:48px;height:152px;flex-shrink:0;background:#0d1629;border:1px solid #293852;border-radius:27px;display:flex;flex-direction:column;overflow:hidden}
 .rocker button{flex:1;border:none;background:transparent;color:#f8fafc;font-size:18px;font-weight:800;cursor:pointer}
 .rocker span{text-align:center;font-size:10px;font-weight:800;color:#64748b}
-.dpad-ring{width:206px;height:206px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#1a2947,#0b1324);border:2px solid #293852;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:10px;gap:4px}
-.dpad-ring button{border:none;background:transparent;color:#e2e8f0;font-size:19px;border-radius:50%;cursor:pointer}
+.dpad-ring{width:182px;height:182px;aspect-ratio:1/1;flex-shrink:0;border-radius:50%;background:radial-gradient(circle at 30% 30%,#1a2947,#0b1324);border:2px solid #293852;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:10px;gap:4px}
+.dpad-ring button{border:none;background:transparent;color:#e2e8f0;font-size:16px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:50%;cursor:pointer}
 .dpad-ring .ok{background:linear-gradient(135deg,#10b981,#059669);color:#042f1e;font-size:15px;font-weight:900}
 .numpad{flex:1;min-height:0;display:none;flex-direction:column;gap:6px}
 .num-lcd{background:#040812;border:1px solid #38bdf866;border-radius:11px;padding:7px;text-align:center;font-size:21px;font-weight:800;letter-spacing:5px;color:#38bdf8}
