@@ -29,3 +29,4 @@ async function saveEd(){if(!ED.length)return;const m3u='#EXTM3U\n'+ED.map(c=>`#E
 async function sendEpg(){const b=apiBase();if(!IS_LAN&&!b){toast('Disponibile in Wi-Fi con TV accesa');return;}const r=await fetch(b+'/api/add_epg',{method:'POST',body:JSON.stringify({url:epgU.value})});toast(r.ok?'EPG aggiunta!':'Errore');}
 async function restartTv(){const b=apiBase();if(IS_LAN||b)await fetch(b+'/api/restart_app',{method:'POST'});}
 syncState();setInterval(syncState,5000);
+
