@@ -1,4 +1,35 @@
-<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>TvBox Remote</title><link rel="manifest" href="manifest.json"><link rel="stylesheet" href="styles.css"></head><body>
+﻿<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>TvBox Remote</title><link rel="manifest" href="manifest.json"><style>*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,sans-serif}
+body{background:#090e1a;color:#f1f5f9;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;background:#0f172a;border-bottom:1px solid #1e293b;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:8px;font-weight:900;font-size:15px;color:#38bdf8}
+.dot{width:9px;height:9px;border-radius:50%;background:#10b981;box-shadow:0 0 8px #10b981}
+.modes{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.mbtn{background:#1e293b;color:#94a3b8;border:1px solid #334155;padding:6px 10px;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer}
+.mbtn.on{background:#38bdf8;color:#090e1a;border-color:#38bdf8}
+#lanIp{width:135px;padding:6px 8px;font-size:11px}
+.cbar{display:flex;gap:6px;padding:8px 12px;background:#0b1220;border-bottom:1px solid #1e293b}
+input,select,textarea{width:100%;background:#111827;color:#f1f5f9;border:1px solid #334155;border-radius:10px;padding:9px 10px;font-size:13px;outline:none}
+.row{display:flex;gap:6px;align-items:center}
+.btn{width:100%;background:#10b981;color:#052e16;border:none;border-radius:10px;padding:10px 12px;font-weight:900;font-size:12px;cursor:pointer}
+.btn.blue{background:#38bdf8;color:#082f49}.btn.gray{background:#334155;color:#f1f5f9}
+.page{display:none;flex:1;overflow:hidden;padding:10px 12px}.page.on{display:flex;flex-direction:column}
+.scroll{flex:1;overflow-y:auto}
+.remote-wrap{flex:1;display:flex;flex-direction:column;justify-content:space-between;align-items:center;gap:8px;max-width:460px;width:100%;margin:0 auto}
+.now-card{width:100%;background:#0f172a;border:1px solid #1e293b;border-radius:14px;padding:10px 12px}
+.now-top{display:flex;justify-content:space-between;align-items:center}.now-ch{font-weight:900;font-size:15px}.now-grp{font-size:10px;background:#1e293b;color:#38bdf8;padding:2px 7px;border-radius:6px;font-weight:800}
+.now-epg{font-size:12px;color:#94a3b8;margin:4px 0 6px}.prog{height:4px;background:#1e293b;border-radius:4px;overflow:hidden}.prog-fill{height:100%;background:#38bdf8;width:0%}
+.dpad-zone{display:flex;align-items:center;justify-content:center;gap:14px;width:100%;my:auto}
+.rocker{display:flex;flex-direction:column;align-items:center;gap:6px}.rlbl{font-size:9px;font-weight:800;color:#64748b}
+.rbtn{width:62px;height:48px;border-radius:12px;background:#1e293b;color:#f1f5f9;border:1px solid #334155;font-weight:800;font-size:11px;cursor:pointer}
+.dpad-ring{position:relative;width:168px;height:168px;border-radius:50%;background:radial-gradient(circle,#1e293b 0%,#0f172a 100%);border:2px solid #334155;flex-shrink:0}
+.dbtn{position:absolute;background:transparent;border:none;color:#e2e8f0;font-size:18px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.d-up{top:4px;left:50%;transform:translateX(-50%);width:54px;height:42px}.d-down{bottom:4px;left:50%;transform:translateX(-50%);width:54px;height:42px}
+.d-left{left:4px;top:50%;transform:translateY(-50%);width:42px;height:54px}.d-right{right:4px;top:50%;transform:translateY(-50%);width:42px;height:54px}
+.d-ok{top:50%;left:50%;transform:translate(-50%,-50%);width:62px;height:62px;border-radius:50%;background:#38bdf8;color:#090e1a;font-size:15px}
+.qbar{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%}.qbtn{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:10px;padding:10px 6px;font-size:11px;font-weight:800;cursor:pointer}
+.list{display:flex;flex-direction:column;gap:6px}.item{display:flex;justify-content:space-between;align-items:center;background:#0f172a;border:1px solid #1e293b;padding:10px 12px;border-radius:10px;cursor:pointer}.sub{font-size:11px;color:#94a3b8}
+.nav{display:grid;grid-template-columns:repeat(5,1fr);background:#0f172a;border-top:1px solid #1e293b}.nbtn{background:transparent;border:none;color:#94a3b8;padding:12px 4px;font-size:11px;font-weight:800;cursor:pointer}.nbtn.on{color:#38bdf8;border-top:2px solid #38bdf8}
+.toast{display:none;position:fixed;bottom:62px;left:50%;transform:translateX(-50%);background:#10b981;color:#052e16;padding:8px 14px;border-radius:20px;font-weight:800;font-size:12px;z-index:99}</style></head><body>
 <div class="top"><div class="brand"><span class="dot"></span>TvBox Remote</div><div class="modes"><button id="mCloud" class="mbtn on" onclick="setMode('cloud')">Cloud</button><button id="mLan" class="mbtn" onclick="openLan()">Wi-Fi / LAN</button><input id="lanIp" placeholder="192.168.x.x:8898"></div></div>
 <div id="cloudBar" class="cbar"><input id="macIn" placeholder="MAC TV (TB-XX:XX:XX:XX)"><input id="pinIn" placeholder="PIN (6 cifre)"><button class="btn" style="width:auto;padding:8px 12px" onclick="savePair()">ABBINA</button></div>
 <div id="p0" class="page on"><div class="remote-wrap">
@@ -33,4 +64,27 @@
 </div></div>
 <div id="toast" class="toast"></div>
 <div class="nav"><button class="nbtn on" onclick="tab(0,this)">Telecomando</button><button class="nbtn" onclick="tab(1,this)">Canali</button><button class="nbtn" onclick="tab(2,this)">Liste TV</button><button class="nbtn" onclick="tab(3,this)">Editor</button><button class="nbtn" onclick="tab(4,this)">Altro</button></div>
-<script src="app.js"></script></body></html>
+<script>const CLOUD_URL="https://workers.dev";
+let MODE=location.port==="8898"?"lan":"cloud";
+const IS_LAN=location.port==="8898";
+let STATE={channels:[],playlists:[],categories:[],current:null};
+function toast(m){const t=document.getElementById("toast");t.innerText=m;t.style.display="block";clearTimeout(t._tm);t._tm=setTimeout(()=>t.style.display="none",2600);}
+function apiBase(){if(IS_LAN)return "";const ip=(localStorage.getItem("tv_lan_ip")||"").trim();return ip?("http://"+ip.replace(/^https?:\/\//,"")):"";}
+function setMode(m){MODE=m;mCloud.classList.toggle("on",m==="cloud");mLan.classList.toggle("on",m==="lan");cloudBar.style.display=m==="cloud"?"flex":"none";}
+function openLan(){const ip=(lanIp.value||localStorage.getItem("tv_lan_ip")||"").trim();if(!ip){toast("Inserisci IP:8898 del TV Box");lanIp.focus();return;}localStorage.setItem("tv_lan_ip",ip);location.href="http://"+ip.replace(/^https?:\/\//,"");}
+function savePair(){localStorage.setItem("tv_mac",macIn.value.trim().toUpperCase());localStorage.setItem("tv_pin",pinIn.value.trim());toast("Abbinamento salvato!");refreshState();}
+function tab(i,b){document.querySelectorAll(".page").forEach((p,k)=>p.classList.toggle("on",k===i));document.querySelectorAll(".nbtn").forEach(x=>x.classList.remove("on"));b.classList.add("on");if(i===1||i===2)refreshState();}
+function togFields(){fXt.style.display=t.value==="xtream"?"flex":"none";fSt.style.display=t.value==="stalker"?"flex":"none";}
+async function cloudPush(action,payload){const mac=(localStorage.getItem("tv_mac")||"").trim();const pin=(localStorage.getItem("tv_pin")||"").trim();if(!mac||!pin){toast("Inserisci MAC e PIN del TV Box");return;}const r=await fetch(CLOUD_URL+"/push",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({mac,pin,action,payload})});toast(r.ok?"Inviato al TV Box via Cloud!":"Errore invio Cloud");}
+async function cmd(c){const b=apiBase();if(IS_LAN||b){await fetch(b+"/api/remote_cmd",{method:"POST",body:JSON.stringify({cmd:c})});}else{await cloudPush("remote_cmd",{cmd:c});}}
+function loadTxtFile(inp){const f=inp.files&&inp.files;if(!f)return;const r=new FileReader();r.onload=()=>{n.value=f.name.replace(/\.[^.]+$/,"");t.value="m3u";u.value="data:audio/x-mpegurl;base64,"+btoa(unescape(encodeURIComponent(r.result)));toast("File caricato: "+f.name+" ? premi INVIA");};r.readAsText(f);}
+async function sendPl(){const rawV=(raw.value||"").trim();if(rawV&&!u.value.trim()){u.value=rawV;}if(!u.value.trim()){toast("Inserisci URL o carica file");return;}const pl={name:n.value.trim()||"Lista TV",type:t.value,url:u.value.trim(),username:us.value.trim(),password:pw.value.trim(),mac:m.value.trim(),sn:sn.value.trim(),deviceId:d1.value.trim(),deviceId2:d2.value.trim(),vpnPolicy:vp.value,vpnCountry:vc.value};const b=apiBase();if(IS_LAN||b){await fetch(b+"/api/add_playlist",{method:"POST",body:JSON.stringify(pl)});toast("Lista inviata al TV Box!");refreshState();}else{await cloudPush("add_playlist",pl);}raw.value="";u.value="";}
+async function sendCustomM3u(){const txt=(m3uTxt.value||"").trim();if(!txt)return;const b=apiBase();if(IS_LAN||b){await fetch(b+"/api/upload_m3u",{method:"POST",body:JSON.stringify({name:"Lista Editor",content:txt})});toast("Lista inviata!");}else{await cloudPush("add_playlist",{name:"Lista Editor",type:"m3u",url:"data:audio/x-mpegurl;base64,"+btoa(unescape(encodeURIComponent(txt)))});}}
+async function sendCin(){const link=(cinU.value||"").trim();if(!link)return;const b=apiBase();if(IS_LAN||b){const r=await fetch(b+"/api/cineteca_import",{method:"POST",body:JSON.stringify({url:link})});const j=await r.json();toast("Cineteca: +"+(j.added||0)+" sorgenti!");}else{await cloudPush("cineteca_import",{url:link});}cinU.value="";}
+async function dlUrl(){const b=apiBase();if(!IS_LAN&&!b){toast("Inserisci IP Wi-Fi/LAN per scaricare");return;}const link=(dlCode.value||"").trim();if(!link)return;dlSt.innerText="Download sul TV Box...";const r=await fetch(b+"/api/download_url",{method:"POST",body:JSON.stringify({url:link})});const j=await r.json();dlSt.innerText=r.ok?("Salvato in Download: "+j.file):("Errore: "+(j.msg||""));}
+async function sendEpg(){const link=(epgU.value||"").trim();if(!link)return;const b=apiBase();if(IS_LAN||b){await fetch(b+"/api/add_epg",{method:"POST",body:JSON.stringify({url:link})});toast("EPG inviata!");}else{await cloudPush("add_epg",{url:link});}epgU.value="";}
+async function restartTv(){const b=apiBase();if(IS_LAN||b){await fetch(b+"/api/restart_app",{method:"POST"});toast("Riavvio TV...");}else{await cloudPush("remote_cmd",{cmd:"restart"});}}
+function renderCh(){const q=(qCh.value||"").toLowerCase(),cat=catSel.value;const list=(STATE.channels||[]).filter(c=>(!cat||c.group===cat)&&(!q||c.name.toLowerCase().includes(q))).slice(0,200);chList.innerHTML=list.map(c=>`<div class="item" onclick="playCh('${c.id}')"><div><b>${c.num}. ${c.name}</b><div class="sub">${c.group}</div></div><span>?</span></div>`).join("");}
+async function playCh(id){const b=apiBase();if(IS_LAN||b){await fetch(b+"/api/play_channel",{method:"POST",body:JSON.stringify({id})});toast("Cambio canale...");}}
+async function refreshState(){const b=apiBase();if(!IS_LAN&&!b)return;try{const r=await fetch(b+"/api/state");STATE=await r.json();if(STATE.current){curCh.innerText=STATE.current.name;curGrp.innerText=STATE.current.group||"LIVE";curNow.innerText=STATE.current.now||"In onda";curBar.style.width=(STATE.current.nowPct||0)+"%";}catSel.innerHTML='<option value="">Tutte le categorie</option>'+(STATE.categories||[]).map(c=>`<option value="${c}">${c}</option>`).join("");plList.innerHTML=(STATE.playlists||[]).map(p=>`<div class="item"><div><b>${p.name}</b><div class="sub">${p.type}</div></div></div>`).join("");renderCh();}catch(_){}}
+window.onload=()=>{macIn.value=localStorage.getItem("tv_mac")||"";pinIn.value=localStorage.getItem("tv_pin")||"";lanIp.value=localStorage.getItem("tv_lan_ip")||"";setMode(IS_LAN?"lan":"cloud");if(IS_LAN)refreshState();};</script></body></html>
