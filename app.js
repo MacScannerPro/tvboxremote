@@ -1,0 +1,1 @@
+function loadTxtFile(inp){const f=inp.files&&inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{n.value=f.name.replace(/\.[^.]+$/,'');t.value='m3u';u.value='data:audio/x-mpegurl;base64,'+btoa(unescape(encodeURIComponent(r.result)));toast('File caricato: '+f.name+' ? premi INVIA');};r.readAsText(f);}
