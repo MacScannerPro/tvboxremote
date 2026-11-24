@@ -1,0 +1,262 @@
+<!DOCTYPE html><html><head><link rel="manifest" href="manifest.json"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="theme-color" content="#070d19"><title>TvBox Remote</title><style>*{box-sizing:border-box;margin:0;padding:0;user-select:none}input,select,textarea{user-select:text}html,body{height:100dvh;overflow:hidden;background:#070d19;color:#f8fafc;font-family:system-ui,sans-serif}body{display:flex;flex-direction:column;max-width:560px;margin:auto;padding:8px;gap:6px}header{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#111c33;border-radius:12px;border:1px solid #26354d;flex-shrink:0}h2{font-size:14.5px;color:#10b981;display:flex;align-items:center;gap:7px}.led{width:9px;height:9px;border-radius:50%;background:#10b981;box-shadow:0 0 8px #10b981;display:inline-block}.led.off{background:#ef4444;box-shadow:0 0 8px #ef4444}.ed-link{background:#0284c7;color:#fff;text-decoration:none;padding:5px 10px;border-radius:8px;font-size:11.5px;font-weight:700}.now{background:linear-gradient(135deg,#0f172a,#17253b);border:1px solid #10b98166;border-radius:12px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-shrink:0}.tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;flex-shrink:0;background:#0b1324;padding:4px;border-radius:11px;border:1px solid #1e293b}.tab{padding:8px 3px;border-radius:8px;border:none;background:transparent;color:#94a3b8;font-weight:700;font-size:11.5px;cursor:pointer;text-align:center}.tab.act{background:#10b981;color:#052e16}.main-wrap{flex:1;min-height:0;display:flex;gap:8px}.box{background:#111c33;padding:9px;border-radius:12px;border:1px solid #26354d;flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}.scroll-y{flex:1;min-height:0;overflow-y:auto}.row{display:flex;gap:6px;align-items:center;flex-shrink:0}input,select,textarea,button{width:100%;padding:8px;margin:2px 0;border-radius:9px;border:1px solid #334155;background:#0b1324;color:#fff;font-size:12.5px}button{background:#10b981;color:#052e16;font-weight:700;border:none;cursor:pointer}button:active{transform:scale(0.95)}.ch{display:flex;justify-content:space-between;align-items:center;padding:8px;background:#0b1324;border-radius:9px;margin-bottom:5px;border:1px solid #26354d;cursor:pointer}.ch.cur{border-color:#10b981;background:#064e3b55}.rc-mode{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:4px;flex-shrink:0;background:#070d19;padding:3px;border-radius:9px}.rc-mode button{padding:6px;font-size:11.5px;background:transparent;color:#94a3b8;margin:0}.rc-mode button.act{background:#0284c7;color:#fff}.dpad{flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,minmax(66px,88px));grid-template-rows:repeat(3,1fr);gap:8px;justify-content:center;align-content:center}.dpad button{height:100%;max-height:64px;font-size:18px;background:#142038;color:#fff;border:1px solid #475569;border-radius:16px}.dpad .ok{background:#10b981;color:#052e16;font-size:15px;border:none}.numpad{flex:1;min-height:0;display:none;flex-direction:column;gap:5px}.num-disp{background:#070d19;border:1px solid #38bdf8;border-radius:9px;padding:6px;text-align:center;font-size:19px;font-weight:800;letter-spacing:4px;color:#38bdf8;flex-shrink:0}.num-grid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.num-grid button{height:100%;max-height:48px;font-size:16px;background:#0b1324;color:#fff;border:1px solid #334155}.rc-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:4px;flex-shrink:0}.rc-bar4{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:4px;flex-shrink:0}.rc-bar button,.rc-bar4 button{padding:9px 4px;font-size:11.5px;margin:0}.msg{font-size:11.5px;color:#a7f3d0;margin-top:4px}</style></head><body>
+<header><h2>TvBoxTotalPlayer Remote</h2><span style="font-size:11px;color:#94a3b8">MAC: ''' + dev.mac + r''' | PIN: ''' + dev.pin + r'''</span><a class="ed-link" href="/editor">Studio Editor ?</a></header>
+<div class="now"><div><div style="font-size:10.5px;color:#10b981;font-weight:bold">IN ONDA SULLA TV</div><div id="curName" style="font-size:14px;font-weight:bold">Caricamento...</div><div id="curEpg" style="font-size:11.5px;color:#cbd5e1"></div><div id="epgBarWrap" style="display:none;margin-top:5px;background:#070d19;height:5px;border-radius:4px;overflow:hidden"><div id="epgBar" style="height:100%;width:0%;background:linear-gradient(90deg,#10b981,#38bdf8);transition:width .4s"></div></div></div><button style="width:auto;padding:7px 11px;background:#38bdf8" onclick="syncState()">Aggiorna</button></div>
+<div class="tabs"><div class="tab act" id="tb0" onclick="sw(0)">Canali & EPG</div><div class="tab" id="tb1" onclick="sw(1)">Telecomando</div><div class="tab" id="tb2" onclick="sw(2)">Liste TV</div><div class="tab" id="tb3" onclick="sw(3)">File & Backup</div><div class="tab" id="tb4" onclick="sw(4)">Editor Liste</div></div>
+<div class="main-wrap"><div id="p0" class="box"><div class="row"><select id="catSel" onchange="renderChs()"><option value="ALL">Tutte le Categorie</option><option value="FAV">Preferiti</option></select><input id="qCh" placeholder="Cerca canale o EPG..." oninput="renderChs()"></div><div id="chList" class="scroll-y" style="margin-top:6px"></div></div>
+<div id="p1" class="box" style="display:none"><div class="rc-mode"><button id="mDpad" class="act" onclick="setRcMode(0)">D-Pad</button><button id="mNum" onclick="setRcMode(1)">Numeri 0-9</button></div><div id="dpadBox" class="dpad"><div></div><button onclick="rc('up')">?</button><div></div><button onclick="rc('left')">?</button><button class="ok" onpointerdown="window._okT=setTimeout(()=>{window._okL=1;rc('ok_long')},500)" onpointerup="clearTimeout(window._okT);if(!window._okL)rc('ok');window._okL=0">OK</button><button onclick="rc('right')">?</button><div></div><button onclick="rc('down')">?</button><div></div></div><div id="numBox" class="numpad"><div id="numDisp" class="num-disp">---</div><div class="num-grid"><button onclick="dig(1)">1</button><button onclick="dig(2)">2</button><button onclick="dig(3)">3</button><button onclick="dig(4)">4</button><button onclick="dig(5)">5</button><button onclick="dig(6)">6</button><button onclick="dig(7)">7</button><button onclick="dig(8)">8</button><button onclick="dig(9)">9</button><button style="background:#ef4444" onclick="dig(-1)">CANC</button><button onclick="dig(0)">0</button><button style="background:#10b981;color:#052e16" onclick="sendNum()">VAI</button></div></div><div class="rc-bar"><button style="background:#f59e0b;color:#000" onclick="rc('back')">INDIETRO</button><button style="background:#38bdf8;color:#000" onclick="rc('ch_up')">CH +</button><button style="background:#38bdf8;color:#000" onclick="rc('ch_down')">CH -</button></div><div class="rc-bar"><button style="background:#475569;color:#fff" onclick="rc('vol_down')">VOL -</button><button style="background:#475569;color:#fff" onclick="rc('mute')">MUTE</button><button style="background:#475569;color:#fff" onclick="rc('vol_up')">VOL +</button></div><div class="rc-bar4"><button style="background:#ef4444;color:#fff" onclick="rc('ok_long')">INFO/REC</button><button style="background:#0284c7;color:#fff" onclick="rc('guide')">GUIDA TV</button><button style="background:#9333ea;color:#fff" onclick="rc('pip')">PIP</button><button style="background:#0ea5e9;color:#000" onclick="rc('aspect')">ASPECT</button></div></div><div id="p2" class="box" style="display:none"><div class="scroll-y"><div style="background:#0b1324;border:1px solid #38bdf866;border-radius:9px;padding:7px;margin-bottom:6px"><div class="row"><select id="devSel" onchange="pickDev()"></select><button style="width:auto;background:#0284c7;color:#fff;padding:7px 10px" onclick="addDev()">+ TV</button><button style="width:auto;background:#ef4444;color:#fff;padding:7px 9px" onclick="delDev()">?</button></div><div id="devInfo" style="font-size:11px;color:#94a3b8;margin-top:2px"></div></div><h3 style="font-size:13px;color:#38bdf8;margin-bottom:6px">Liste & Portali nella TV</h3><div id="srvBox"></div><hr style="border-color:#334155;margin:8px 0"><textarea id="raw" style="height:58px" placeholder="Incolla qui Portal, Mac, SN, ID, User-Agent..." oninput="parseHit(false)"></textarea><div class="row"><button style="background:#38bdf8" onclick="parseHit(true)">COMPILA & INVIA</button><button style="background:#64748b;color:#fff" onclick="raw.value=''">PULISCI</button></div><div class="row"><select id="t" onchange="const isM=this.value=='m3u';['m','sn','d1','d2','us','pw'].forEach(k=>document.getElementById(k).style.display=isM?'none':'');"><option value="stalker">Stalker MAC</option><option value="xtream">Xtream</option><option value="m3u">M3U</option></select><input id="n" value="My IPTV" placeholder="Nome"></div><input id="u" placeholder="URL Portale o M3U"><input id="m" placeholder="MAC (00:1A:79:...)"><div class="row"><input id="sn" placeholder="S/N"><input id="d1" placeholder="Device ID 1"></div><div class="row"><input id="d2" placeholder="Device ID 2"><input id="ua" placeholder="User-Agent (vuoto=auto)"></div><div class="row"><input id="us" placeholder="User (Xtream)"><input id="pw" placeholder="Pass (Xtream)"></div><button onclick="send()">AGGIUNGI ALLA TV</button><p class="msg" id="st"></p></div></div>
+<div id="p3" class="box" style="display:none"><h3 style="font-size:13px;color:#f59e0b">EPG XMLTV & File Locali</h3><div class="row"><input id="epg" placeholder="http://.../epg.xml"><button style="width:auto;background:#f59e0b" onclick="sendEpg()">AGGIUNGI EPG</button></div><input type="file" id="m3uf" accept=".m3u,.m3u8"><button style="background:#a855f7;color:#fff" onclick="upM3u()">CARICA FILE .M3U DAL PC/TELEFONO</button><input type="file" id="apk" accept=".apk"><div class="row"><button style="background:#38bdf8" onclick="upApk()">INSTALLA APK</button><button style="background:#ef4444;color:#fff" onclick="restartTv()">RIAVVIA TV</button></div><div class="row"><button style="background:#f59e0b" onclick="location.href='/api/backup_export'">SCARICA BACKUP</button><button style="background:#10b981" onclick="bkf.click()">RIPRISTINA BACKUP</button><input type="file" id="bkf" accept=".json" style="display:none" onchange="upBk()"></div><p class="msg" id="st2"></p></div>
+<div id="p4" class="box" style="display:none"><div style="background:linear-gradient(90deg,#064e3b,#1e293b);border:1.5px solid #10b981;border-radius:10px;padding:12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:10px"><div><div style="font-size:14px;font-weight:bold;color:#10b981">Studio Editor Portali Stalker / MAC &amp; Mix</div><div style="font-size:12px;color:#cbd5e1">Apri la pagina dedicata a schermo intero per rinominare, cambiare loghi, associare EPG, nascondere categorie e mischiare canali tra server diversi.</div></div><button style="width:auto;padding:11px 16px;font-size:13.5px;background:#10b981;color:#000" onclick="window.open('/editor','_blank')">APRI EDITOR COMPLETO ?</button></div><h3 style="font-size:13px;color:#10b981;margin-bottom:6px">Crea / Modifica Lista Personalizzata (Mischia Portali)</h3><div class="row"><select id="edPortal"></select><button style="width:auto;background:#38bdf8" onclick="loadPortalChs()">Carica Sorgente</button></div><input id="edSearch" placeholder="Cerca canale nella sorgente da aggiungere..." oninput="renderSrcEd()"><div id="edSrcList" style="max-height:170px;overflow-y:auto;margin:6px 0;border:1px solid #334155;border-radius:8px;padding:4px"></div><hr style="border-color:#334155;margin:8px 0"><div class="row"><input id="edListName" value="Lista Personalizzata 1" placeholder="Nome nuova lista"><button style="width:auto;background:#10b981" onclick="saveCustomM3u()">SALVA & INVIA ALLA TV</button><button style="width:auto;background:#f59e0b" onclick="dlCustomM3u()">SCARICA .M3U</button></div><div class="row"><input id="manName" placeholder="Canale manuale: Nome"><input id="manGrp" placeholder="Categoria"><input id="manUrl" placeholder="URL stream (http://...)"><button style="width:auto;background:#a855f7;color:#fff" onclick="addManualEd()">+ Aggiungi</button></div><div style="font-size:11.5px;color:#38bdf8;margin:4px 0" id="edCount">Canali nella tua lista: 0</div><div id="edMyList" style="max-height:240px;overflow-y:auto"></div><p class="msg" id="stEd"></p></div></div></div>
+<script>
+let ST = {playlists:[], current:null, categories:[], channels:[]}; const IS_LOCAL = location.protocol.startsWith('http') && location.port==='8898'; function apiBase(){ if(IS_LOCAL) return ''; const v=devSel.value; return (v!=='LOCAL' && DEVS[v] && DEVS[v].ip) ? ('http://'+DEVS[v].ip.replace(/^https?:\/\//,'').replace(/\/$/,'')) : ''; }
+
+function sw(i){[0,1,2,3,4].forEach(k=>{document.getElementById('p'+k).style.display=k==i?'flex':'none';document.getElementById('tb'+k).className='tab'+(k==i?' act':'');});}
+function setRcMode(m){document.getElementById('dpadBox').style.display=m===0?'grid':'none';document.getElementById('numBox').style.display=m===1?'flex':'none';document.getElementById('mDpad').className=m===0?'act':'';document.getElementById('mNum').className=m===1?'act':'';}
+window._numBuf='';window._numT=null;
+function dig(n){if(navigator.vibrate)navigator.vibrate(18);clearTimeout(window._numT);if(n<0){window._numBuf=window._numBuf.slice(0,-1);}else if(window._numBuf.length<4){window._numBuf+=String(n);}document.getElementById('numDisp').innerText=window._numBuf||'---';if(window._numBuf)window._numT=setTimeout(sendNum,1100);}
+function sendNum(){clearTimeout(window._numT);const v=parseInt(window._numBuf,10);window._numBuf='';document.getElementById('numDisp').innerText='---';if(!isNaN(v)&&ST&&ST.channels){const c=ST.channels.find(x=>x.num===v)||ST.channels[v-1];if(c)playCh(c.id);}}
+async function syncState(){
+  try{
+    if(!IS_LOCAL && !apiBase()){ connLed.className='led off'; curName.innerText='Modalit? Offline / Cloud Attiva'; curEpg.innerText='Puoi inviare liste e modifiche tramite MAC + PIN anche a TV spenta'; return; } const r = await fetch(apiBase()+'/api/state'); ST = await r.json(); connLed.className='led'; if(ST.mac && !DEVS.some(x=>x.mac===ST.mac)){DEVS.unshift({name:'TV Locale ('+ST.mac.slice(-5)+')',mac:ST.mac,pin:ST.pin});saveDevs();} pickDev();
+    curName.innerText = ST.current ? ST.current.name + ' (' + ST.current.group + ')' : 'Nessun canale in riproduzione';
+    curEpg.innerText = ST.current && ST.current.now ? (ST.current.nowTime ? '['+ST.current.nowTime+'] ' : '') + ST.current.now + (ST.current.next ? '  ?  Dopo: ' + ST.current.next : '') : ''; epgBarWrap.style.display = (ST.current && ST.current.now) ? 'block' : 'none'; epgBar.style.width = (ST.current ? (ST.current.nowPct||0) : 0) + '%';
+    const prev = catSel.value;
+    catSel.innerHTML = '<option value="ALL">Tutte le Categorie ('+ST.channels.length+')</option><option value="FAV">Preferiti</option>' + ST.categories.map(c=>`<option value="${c}">${c}</option>`).join('');
+    if([...catSel.options].some(o=>o.value===prev)) catSel.value = prev;
+    renderChs(); renderSrvs(); if(typeof edPortal!=='undefined' && !edPortal.options.length){ edPortal.innerHTML = ST.playlists.map(p=>`<option value="${p.id}">${p.name} (${p.type})</option>`).join(''); ED_SRC = ST.channels; renderSrcEd(); }
+  }catch(e){ connLed.className='led off'; }
+}
+function renderChs(){
+  const cat = catSel.value, q = (qCh.value||'').toLowerCase();
+  const list = ST.channels.filter(c => (cat==='ALL' || (cat==='FAV' && c.fav) || c.group===cat) && (!q || c.name.toLowerCase().includes(q) || (c.now||'').toLowerCase().includes(q))).slice(0, 180);
+  chList.innerHTML = list.map(c => `<div class="ch ${ST.current && ST.current.id===c.id?'cur':''}" onclick="playCh('${c.id}')"><div style="flex:1;min-width:0"><div style="font-weight:bold;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ST.current && ST.current.id===c.id?'&#9654; ':''}${c.name}</div><div style="font-size:11px;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.now ? 'Ora: '+c.now : c.group}</div></div><button style="width:auto;padding:5px 9px;margin-left:6px;background:${c.fav?'#f59e0b':'#334155'};color:${c.fav?'#000':'#fff'}" onclick="event.stopPropagation();togFav('${c.id}')">&#9733;</button></div>`).join('') || '<div style="color:#94a3b8;padding:10px">Nessun canale trovato</div>';
+}
+function renderSrvs(){
+  srvBox.innerHTML = ST.playlists.map((p,i)=>`<div class="ch"><div><b>${p.name}</b> <span style="font-size:11px;color:#10b981">(${p.type})</span><div style="font-size:11px;color:#94a3b8">${p.url}</div></div><div class="row" style="width:auto">${i>0?`<button style="width:auto;padding:5px 8px;background:#38bdf8" onclick="actPl('${p.id}')">Attiva</button>`:'<span style="font-size:11px;color:#10b981;font-weight:bold">ATTIVA</span>'}<button style="width:auto;padding:5px 8px;background:#ef4444;color:#fff" onclick="delPl('${p.id}')">Elimina</button></div></div>`).join('') || '<div style="color:#94a3b8">Nessuna lista nella TV</div>';
+}
+async function playCh(id){ await fetch(apiBase()+'/api/play_channel',{method:'POST',body:JSON.stringify({id})}); setTimeout(syncState,400); }
+async function togFav(id){ await fetch(apiBase()+'/api/toggle_fav',{method:'POST',body:JSON.stringify({id})}); setTimeout(syncState,250); }
+async function rc(cmd){ if(navigator.vibrate)navigator.vibrate(20); await fetch(apiBase()+'/api/remote_cmd',{method:'POST',body:JSON.stringify({cmd})}); setTimeout(syncState,300); }
+async function actPl(id){ await fetch(apiBase()+'/api/activate_playlist',{method:'POST',body:JSON.stringify({id})}); setTimeout(syncState,600); }
+async function delPl(id){ if(confirm('Eliminare questa lista dalla TV?')){ await fetch(apiBase()+'/api/delete_playlist',{method:'POST',body:JSON.stringify({id})}); setTimeout(syncState,500); } }
+function parseHit(autoSend){
+  const txt = raw.value||''; const uM = txt.match(/https?:\/\/[^\s\|\)\]<>"']+/i);
+  if(uM){ const ru=uM[0].trim(); try{ const p=new URL(ru); n.value=p.hostname; if(p.searchParams.get('username')){t.value='xtream';us.value=p.searchParams.get('username');pw.value=p.searchParams.get('password');u.value=p.origin;}else if(ru.includes('.m3u')){t.value='m3u';u.value=ru;}else u.value=ru; }catch(e){u.value=ru;} }
+  const macM = txt.match(/([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}/); if(macM){t.value='stalker';m.value=macM[0].toUpperCase();}
+  const snM = txt.match(/(?:S\/N|SN|Serial)[\s:=]+([A-Za-z0-9]+)/i); if(snM) sn.value=snM[1];
+  const d1M = txt.match(/(?:Device\s*ID\s*1|ID1)[\s:=]+([A-Za-z0-9]+)/i); if(d1M) d1.value=d1M[1];
+  const d2M = txt.match(/(?:Device\s*ID\s*2|ID2)[\s:=]+([A-Za-z0-9]+)/i); if(d2M) d2.value=d2M[1];
+  const uaM = txt.match(/(?:User-Agent|UA)[\s:=]+([^\r\n]+)/i); if(uaM) ua.value=uaM[1].trim();
+  if(autoSend && u.value) send();
+}
+let DEVS=JSON.parse(localStorage.getItem('tvbox_devs')||'[]');
+function saveDevs(){localStorage.setItem('tvbox_devs',JSON.stringify(DEVS));renderDevs();}
+function renderDevs(){const cur=devSel.value;devSel.innerHTML='<option value="LOCAL">TV Locale Connessa (In Tempo Reale)</option>'+DEVS.map((d,i)=>`<option value="${i}">${d.name} (${d.mac})</option>`).join('');if([...devSel.options].some(o=>o.value===cur))devSel.value=cur;pickDev();}
+function pickDev(){const v=devSel.value;devInfo.innerText=v==='LOCAL'?(ST&&ST.mac?`TV Attiva: ${ST.mac} ? PIN: ${ST.pin}`:'Usa questa TV collegata in Wi-Fi'):`Invio Offline (anche a TV spenta) ? MAC: ${DEVS[v].mac} ? PIN: ${DEVS[v].pin}`;}
+function addDev(){const name=prompt('Nome dispositivo (es. Shield Salotto, Box Fratello):');if(!name)return;const mac=(prompt('Codice MAC (es. TB-A4:8F:21:9C):')||'').trim().toUpperCase();const pin=(prompt('PIN a 6 cifre della TV:')||'').trim();if(!mac||!pin)return;const ip=(prompt('IP Locale TV opzionale per telecomando live (es. 192.168.1.50:8898, lascia vuoto se fuori casa):')||'').trim();DEVS=DEVS.filter(x=>x.mac!==mac);DEVS.push({name,mac,pin,ip});saveDevs();devSel.value=String(DEVS.length-1);pickDev();}
+function delDev(){const v=devSel.value;if(v==='LOCAL')return;if(confirm('Rimuovere questo dispositivo dalla rubrica?')){DEVS.splice(Number(v),1);saveDevs();}}
+async function pushCloud(mac,pin,payload){const raw='tvboxtotal_'+mac+'_'+pin;let h=2166136261;for(let i=0;i<raw.length;i++){h^=raw.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}const topic='tvbox_'+mac.replace(/[^A-Z0-9]/g,'')+'_'+h.toString(16);return fetch('https://ntfy.sh' + topic, {method:'POST',body:JSON.stringify({action:'add_playlist',payload})});}
+renderDevs();
+async function send(){const pl={id:'pl_'+Date.now(),name:n.value||'My IPTV',type:t.value,url:u.value,mac:m.value,sn:sn.value,deviceId:d1.value,deviceId2:d2.value,username:us.value,password:pw.value,userAgent:ua.value};if(devSel.value!=='LOCAL' && !apiBase()){const d=DEVS[Number(devSel.value)];const r=await pushCloud(d.mac,d.pin,pl);st.innerText=r.ok?`Inviato a ${d.name} (${d.mac})! Verr? caricato all'accensione.`:'Errore invio cloud';return;}const r=await fetch(apiBase()+'/api/add_playlist',{method:'POST',body:JSON.stringify(pl)});st.innerText=r.ok?'Lista inviata alla TV!':'Errore';if(r.ok)setTimeout(syncState,700);}
+async function sendEpg(){ const r = await fetch(apiBase()+'/api/add_epg',{method:'POST',body:JSON.stringify({url:epg.value})}); st2.innerText = r.ok ? 'EPG aggiunta!' : 'Errore'; }
+async function upM3u(){ const f=m3uf.files[0]; if(!f)return; const txt=await f.text(); const r=await fetch(apiBase()+'/api/upload_m3u',{method:'POST',body:JSON.stringify({name:f.name,content:txt})}); st2.innerText=r.ok?'M3U caricato sulla TV!':'Errore'; setTimeout(syncState,700); }
+async function upApk(){ const f=apk.files[0]; if(!f)return; st2.innerText='Invio APK...'; const r=await fetch(apiBase()+'/api/upload_apk',{method:'POST',body:f}); st2.innerText=r.ok?'APK inviato! Conferma sulla TV':'Errore'; }
+async function restartTv(){ await fetch(apiBase()+'/api/restart_app',{method:'POST'}); }
+async function upBk(){ const f=bkf.files[0]; if(!f)return; const txt=await f.text(); const r=await fetch(apiBase()+'/api/import_backup',{method:'POST',body:txt}); st2.innerText=r.ok?'Backup ripristinato! Riavvio...':'Errore backup'; }
+let ED_SRC = [], ED_MY = [];
+async function loadPortalChs(){
+  const id = edPortal.value; if(!id) return;
+  edSrcList.innerHTML = '<div style="padding:8px;color:#94a3b8">Caricamento canali sorgente...</div>';
+  const r = await fetch(apiBase()+'/api/portal_channels?id='+encodeURIComponent(id));
+  ED_SRC = await r.json(); renderSrcEd();
+}
+function renderSrcEd(){
+  const q = (edSearch.value||'').toLowerCase();
+  const arr = ED_SRC.filter(c => !q || c.name.toLowerCase().includes(q) || (c.group||'').toLowerCase().includes(q)).slice(0, 120);
+  edSrcList.innerHTML = arr.map((c,i)=>`<div class="ch" style="padding:5px 8px"><div><b style="font-size:12px">${c.name}</b> <span style="font-size:10.5px;color:#94a3b8">(${c.group||''})</span></div><button style="width:auto;padding:4px 9px;background:#38bdf8" onclick="addEdFromSrc(${ED_SRC.indexOf(c)})">+ Aggiungi</button></div>`).join('') || '<div style="padding:6px;color:#94a3b8">Nessun canale</div>';
+}
+function addEdFromSrc(idx){ const c = ED_SRC[idx]; if(!c) return; ED_MY.push({name:c.name, group:c.group||'Personalizzati', logo:c.logo||'', url:c.url}); renderMyEd(); }
+function addManualEd(){ if(!manName.value||!manUrl.value) return; ED_MY.push({name:manName.value.trim(), group:(manGrp.value||'Personalizzati').trim(), logo:'', url:manUrl.value.trim()}); manName.value=''; manUrl.value=''; renderMyEd(); }
+function mvEd(i,d){ const ni=i+d; if(ni<0||ni>=ED_MY.length)return; const x=ED_MY.splice(i,1)[0]; ED_MY.splice(ni,0,x); renderMyEd(); }
+function renEd(i){ const nn=prompt('Nuovo nome canale:',ED_MY[i].name); if(nn) ED_MY[i].name=nn.trim(); const ng=prompt('Categoria:',ED_MY[i].group); if(ng) ED_MY[i].group=ng.trim(); renderMyEd(); }
+function renderMyEd(){
+  edCount.innerText = 'Canali nella tua lista: ' + ED_MY.length;
+  edMyList.innerHTML = ED_MY.map((c,i)=>`<div class="ch" style="padding:6px 8px"><div style="flex:1;min-width:0"><b style="font-size:12px">${i+1}. ${c.name}</b><div style="font-size:10.5px;color:#10b981">${c.group}</div></div><div class="row" style="width:auto"><button style="width:auto;padding:4px 7px;background:#334155;color:#fff" onclick="mvEd(${i},-1)">&#9650;</button><button style="width:auto;padding:4px 7px;background:#334155;color:#fff" onclick="mvEd(${i},1)">&#9660;</button><button style="width:auto;padding:4px 7px;background:#38bdf8" onclick="renEd(${i})">Modifica</button><button style="width:auto;padding:4px 7px;background:#ef4444;color:#fff" onclick="ED_MY.splice(${i},1);renderMyEd()">X</button></div></div>`).join('');
+}
+function buildM3uText(){
+  return '#EXTM3U\n' + ED_MY.map(c=>`#EXTINF:-1 tvg-logo="${c.logo||''}" group-title="${c.group||'Personalizzati'}",${c.name}\n${c.url}`).join('\n');
+}
+async function saveCustomM3u(){
+  if(!ED_MY.length){ stEd.innerText='Aggiungi almeno un canale!'; return; }
+  const nm = (edListName.value||'Lista Personalizzata').trim() + '.m3u';
+  const r = await fetch(apiBase()+'/api/upload_m3u',{method:'POST',body:JSON.stringify({name:nm, content:buildM3uText()})});
+  stEd.innerText = r.ok ? 'Lista salvata e inviata alla TV!' : 'Errore salvataggio';
+  if(r.ok) setTimeout(syncState, 700);
+}
+function dlCustomM3u(){
+  if(!ED_MY.length) return;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([buildM3uText()],{type:'audio/x-mpegurl'}));
+  a.download = (edListName.value||'lista_personalizzata').trim().replace(/\s+/g,'_') + '.m3u';
+  a.click();
+}
+syncState(); setInterval(syncState, 5000);
+</script></body></html>'''); 
+      await req.response.close();
+      return;
+    }
+    if (req.method == 'POST' && req.uri.path == '/api/add_playlist') {
+      final body = await utf8.decoder.bind(req).join();
+      final d = jsonDecode(body) as Map<String, dynamic>;
+      final rawUrl = (d['url'] ?? '').toString().trim();
+      final customUa = (d['userAgent'] ?? '').toString().trim();
+      if (customUa.isNotEmpty && rawUrl.isNotEmpty) {
+        final prefs = await SharedPreferences.getInstance();
+        final rawMap = prefs.getString('custom_host_uas');
+        final map = rawMap != null
+            ? Map<String, String>.from(jsonDecode(rawMap))
+            : <String, String>{};
+        map[Uri.tryParse(rawUrl)?.host ?? rawUrl] = customUa;
+        await prefs.setString('custom_host_uas', jsonEncode(map));
+        await HostUserAgentManager.load();
+      }
+      await onAddPlaylist(
+        PlaylistSource(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          name: (d['name'] ?? 'IPTV').toString(),
+          type:
+              ((d['type'] ?? '').toString().toLowerCase() == 'm3u' ||
+                  rawUrl.toLowerCase().contains('.m3u'))
+              ? 'm3u'
+              : (d['type'] ?? 'stalker').toString().toLowerCase(),
+          url: rawUrl,
+          username: (d['username'] ?? '').toString(),
+          password: (d['password'] ?? '').toString(),
+          mac: (d['mac'] ?? '').toString().toUpperCase(),
+          sn: (d['sn'] ?? '').toString().toUpperCase(),
+          deviceId: (d['deviceId'] ?? '').toString().toUpperCase(),
+          deviceId2: (d['deviceId2'] ?? '').toString().toUpperCase(),
+        ),
+      );
+      req.response.write('{"status":"ok"}');
+      await req.response.close();
+      return;
+    }
+    if (req.method == 'POST' && req.uri.path == '/api/add_epg') {
+      final body = await utf8.decoder.bind(req).join();
+      final d = jsonDecode(body) as Map<String, dynamic>;
+      final epgUrl = (d['url'] ?? '').toString().trim();
+      if (epgUrl.isNotEmpty) {
+        final prefs = await SharedPreferences.getInstance();
+        final list = prefs.getStringList('manual_epg_urls') ?? <String>[];
+        if (!list.contains(epgUrl)) {
+          list.add(epgUrl);
+          await prefs.setStringList('manual_epg_urls', list);
+        }
+        await EpgManager.loadSavedUrls();
+        EpgManager.refreshAllEpg();
+      }
+      req.response.write('{"status":"ok"}');
+      await req.response.close();
+      return;
+    }
+    if (req.method == 'POST' && req.uri.path == '/api/upload_m3u') {
+      final body = await utf8.decoder.bind(req).join();
+      final d = jsonDecode(body) as Map<String, dynamic>;
+      final f = File('${Directory.systemTemp.path}/pc_local_playlist.m3u');
+      await f.writeAsString((d['content'] ?? '').toString());
+      await onAddPlaylist(
+        PlaylistSource(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          name: (d['name'] ?? 'Lista PC').toString(),
+          type: 'm3u',
+          url: f.path,
+        ),
+      );
+      req.response.write('{"status":"ok"}');
+      await req.response.close();
+      return;
+    }
+    if (req.method == 'POST' && req.uri.path == '/api/import_backup') {
+      final raw = await utf8.decoder.bind(req).join();
+      final ok = await AccountBackupService.importFullBackupJson(raw);
+      req.response.statusCode = ok ? 200 : 400;
+      req.response.write(ok ? '{"status":"ok"}' : '{"status":"err"}');
+      await req.response.close();
+      return;
+    }
+    if (req.method == 'POST' && req.uri.path == '/api/restart_app') {
+      req.response.write('{"status":"ok"}');
+      await req.response.close();
+      await _ch.invokeMethod('restartApp');
+      return;
+    }
+    if (req.method == 'POST' && req.uri.path == '/api/backup_import') {
+      final body = await utf8.decoder.bind(req).join();
+      final ok = await AccountBackupService.importFullBackupJson(body);
+      req.response.statusCode = ok ? 200 : 400;
+      req.response.write(ok ? '{"status":"ok"}' : '{"status":"err"}');
+      await req.response.close();
+      return;
+    }
+    if (req.method == 'POST' && req.uri.path == '/api/upload_apk') {
+      final file = File('${Directory.systemTemp.path}/tvbox_update.apk');
+      final sink = file.openWrite();
+      await req.forEach(sink.add);
+      await sink.close();
+      req.response.write('{"status":"ok"}');
+      await req.response.close();
+      await _ch.invokeMethod('installApk', {'path': file.path});
+      return;
+    }
+    req.response.statusCode = 404;
+    await req.response.close();
+  }
+
+  String _buildEditorHtml(String mac, String pin, String initPlsJson) => r"""<!DOCTYPE html><html lang="it"><head><link rel="manifest" href="manifest.json"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="theme-color" content="#070d19"><title>TvBox Studio Editor</title><style>
+*{box-sizing:border-box;margin:0;padding:0}html,body{width:100%;height:100%;overflow:hidden;background:#090d16;color:#f8fafc;font-family:system-ui,sans-serif}
+body{display:flex;flex-direction:column}
+header{flex:0 0 auto;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;padding:9px 14px;background:#111827;border-bottom:1px solid #1f2937}
+select,input[type=text]{background:#0f172a;color:#fff;border:1px solid #334155;border-radius:7px;padding:6px 9px;font-size:12.5px}
+input[type=checkbox]{width:16px;height:16px;accent-color:#10b981;cursor:pointer;flex-shrink:0}
+button{background:#10b981;color:#052e16;font-weight:700;border:none;border-radius:7px;padding:7px 12px;font-size:12px;cursor:pointer;white-space:nowrap}
+button.sec{background:#1e293b;color:#e2e8f0;border:1px solid #334155}button.warn{background:#f59e0b;color:#000}button.red{background:#ef4444;color:#fff}button.sm{padding:4px 8px;font-size:11.5px}
+.main{flex:1 1 auto;display:grid;grid-template-columns:250px 1fr 370px;gap:10px;padding:10px;min-height:0;overflow:hidden}
+.col{background:#111827;border:1px solid #1f2937;border-radius:12px;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.col-h{flex:0 0 auto;padding:8px 11px;background:#1e293b;border-bottom:1px solid #334155;font-weight:700;font-size:13px;color:#38bdf8;display:flex;justify-content:space-between;align-items:center}
+.col-tools{flex:0 0 auto;padding:7px;border-bottom:1px solid #1f2937;display:flex;flex-direction:column;gap:5px}
+.col-b{flex:1 1 auto;overflow-y:auto;padding:7px}
+.row{display:flex;gap:6px;align-items:center}
+.c-row{display:flex;align-items:center;gap:7px;padding:6px 8px;background:#0f172a;border:1px solid #1e293b;border-radius:8px;margin-bottom:5px;cursor:pointer}
+.c-row:hover{border-color:#38bdf8}.c-row.act{border-color:#10b981;background:#064e3b33}.c-row.off{opacity:0.42}.c-row.picked{border-color:#f59e0b;background:#451a0333}
+.logo{width:28px;height:28px;border-radius:5px;background:#1e293b;object-fit:contain;flex-shrink:0}
+.num{min-width:26px;height:24px;border-radius:6px;background:#f59e0b;color:#000;font-weight:900;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#10b981;color:#000;font-weight:800;padding:10px 18px;border-radius:10px;display:none;z-index:99}
+</style></head><body>
+<header><div><div style="font-size:15px;font-weight:800;color:#10b981">TvBox Studio Editor &bull; Portali Stalker / MAC &amp; Liste</div><div style="font-size:11px;color:#94a3b8">MAC: """ + mac + r""" | PIN: """ + pin + r"""</div></div><div class="row"><select id="selPortal" onchange="loadPortal(this.value)" style="min-width:210px"></select><button class="warn" onclick="autoDtt()">Auto-DTT Italia (1-9)</button><button class="sec" onclick="exportM3u()">.M3U Portale</button><button onclick="saveAll()">SALVA LISTA SULLA TV</button></div></header>
+<div class="main">
+  <div class="col"><div class="col-h"><span>1. Categorie</span><span id="catCnt">0/0</span></div><div class="col-tools"><input type="text" id="qCat" placeholder="Filtra categorie..." oninput="renderCats()"><div class="row"><button class="sm sec" style="flex:1" onclick="setAllCats(true)">&#10004; Tutte</button><button class="sm red" style="flex:1" onclick="setAllCats(false)">&#10006; Nessuna</button></div></div><div class="col-b" id="catList"></div></div>
+  <div class="col"><div class="col-h"><span>2. Clicca il Canale per metterlo in Fila</span><span id="chCnt">0</span></div><div class="col-tools"><div class="row"><select id="selCatDrop" onchange="pickCat(this.value)" style="max-width:210px;font-weight:700;color:#10b981"></select><input type="text" id="qCh" placeholder="Cerca in tutto il portale o categoria..." oninput="renderChs()" style="flex:1"><button class="sm sec" onclick="selCat='__ALL__';renderCats();renderChs()">Tutti</button></div></div><div class="col-b" id="chList"></div></div>
+  <div class="col"><div class="col-h" style="color:#f59e0b"><span id="mixTitle">3. La Tua Lista (0)</span><div class="row"><button class="sm warn" onclick="exportMixM3u()">Scarica .M3U</button><button class="sm red" onclick="clearMix()">Svuota</button></div></div><div style="padding:6px 9px;font-size:11px;color:#94a3b8;border-bottom:1px solid #1f2937">Click al centro = va subito a <b>1, 2, 3, 4...</b> qui sotto. Usa <b>&uarr;/&darr;</b> per piccoli aggiustamenti o <b>&#9998;</b> per logo/EPG.</div><div class="col-b" id="mixList"></div></div>
+</div>
+<div class="toast" id="toast"></div><script>let INIT_PLS=JSON.parse(atob(""" + initPlsJson + r""")),D=null,selCat='__ALL__',mix=[],editMixIdx=-1;
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',2600);}
+async function init(){let pls=INIT_PLS;if(!pls||!pls.length){try{const r=await fetch(apiBase()+'/api/state');const st=await r.json();pls=st.playlists||[];}catch(_){}}document.getElementById('selPortal').innerHTML=pls.map(p=>`<option value="${p.id}">[${p.type.toUpperCase()}] ${p.name}</option>`).join('');if(pls.length)await loadPortal(pls.at(0).id);if(pls.some(p=>p.id==='mix_custom_1')){const mr=await fetch(apiBase()+'/api/editor/portal_data?id=mix_custom_1');const md=await mr.json();mix=md.channels||[];renderMix();}}
+async function loadPortal(id){document.getElementById('chList').innerHTML='<div style="padding:18px;color:#94a3b8">Caricamento canali dal portale...</div>';const r=await fetch(apiBase()+'/api/editor/portal_data?id='+encodeURIComponent(id));D=await r.json();if(D.error)return;const rc=Array.from(new Set((D.channels||[]).map(c=>c.group||'Generale'))),o=D.catOrder||[];rc.sort((a,b)=>(o.indexOf(a)<0?9999:o.indexOf(a))-(o.indexOf(b)<0?9999:o.indexOf(b)));D._cats=rc;selCat=rc.at(0)||'__ALL__';renderCats();renderChs();}
+function pickCat(c){selCat=c;renderCats();renderChs();}
+function setAllCats(vis){if(!D)return;D.hiddenCats=vis?[]:[...D._cats];renderCats();}
+function renderCats(){if(!D)return;const q=document.getElementById('qCat').value.toLowerCase(),hid=new Set(D.hiddenCats||[]),l=D._cats.filter(c=>!q||(D.catRenames[c]||c).toLowerCase().includes(q));const visCnt=D._cats.filter(c=>!hid.has(c)).length;document.getElementById('catCnt').textContent=visCnt+'/'+D._cats.length;document.getElementById('selCatDrop').innerHTML=`<option value="__ALL__" ${selCat==='__ALL__'?'selected':''}>-- Tutte le Categorie (${D.channels.length}) --</option>`+D._cats.map(c=>`<option value="${c.replace(/"/g,'&quot;')}" ${selCat===c?'selected':''}>${(D.catRenames[c]||c)} (${D.channels.filter(x=>x.group===c).length})</option>`).join('');document.getElementById('catList').innerHTML=l.map(c=>{const on=!hid.has(c),nm=D.catRenames[c]||c,ec=c.replace(/\\/g,'\\\\').replace(/'/g,"\\'");return`<div class="c-row ${selCat===c?'act':''} ${on?'':'off'}" onclick="pickCat('${ec}')"><input type="checkbox" ${on?'checked':''} onclick="event.stopPropagation();tgCat('${ec}')"><div style="flex:1;min-width:0;font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${nm}</div></div>`;}).join('');}
+function tgCat(c){const s=new Set(D.hiddenCats||[]);s.has(c)?s.delete(c):s.add(c);D.hiddenCats=[...s];renderCats();}
+function mixIdxOf(c){return mix.findIndex(m=>m._srcId===c.id||m.name===c.name);}
+function renderChs(){if(!D)return;const q=document.getElementById('qCh').value.toLowerCase();const l=D.channels.filter(c=>(q?true:(selCat==='__ALL__'||c.group===selCat))&&(!q||c.name.toLowerCase().includes(q)));document.getElementById('chCnt').textContent=l.length+' canali';document.getElementById('chList').innerHTML=l.slice(0,400).map(c=>{const mp=mixIdxOf(c);return`<div class="c-row ${mp>=0?'picked':''}" onclick="togglePick('${c.id}')"><img class="logo" src="${c.logo||''}" onerror="this.style.opacity=0.2"><div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.name}</div><div style="font-size:10.5px;color:#94a3b8">${c.group}</div></div><button class="sm ${mp>=0?'warn':''}">${mp>=0?('#'+(mp+1)+' &#10004;'):'+ Metti in Fila'}</button></div>`;}).join('');}
+function togglePick(id){const c=D.channels.find(x=>x.id===id);if(!c)return;const mp=mixIdxOf(c);if(mp>=0){mix.splice(mp,1);renderMix();renderChs();return;}let u=c.url||'';if(u.startsWith('stalker://')&&D.portal&&D.portal.id)u='stalker_ref://'+D.portal.id+'|'+u.substring(10);mix.push({id:'mix_'+Date.now()+'_'+mix.length,_srcId:c.id,number:mix.length+1,name:c.name,group:c.group||'Mix',logo:c.logo||'',url:u,tvgId:c.tvgId||''});renderMix();renderChs();}
+function autoDtt(){if(!D)return;const keys=[/rai\s*1\b/i,/rai\s*2\b/i,/rai\s*3\b/i,/rete\s*4\b/i,/canale\s*5\b/i,/italia\s*1\b/i,/\bla\s*7\b/i,/tv\s*8\b/i,/\bnove\b/i];let added=0;keys.forEach(rx=>{const f=D.channels.find(c=>rx.test(c.name)&&!/\+1|sport|premium|news|gulp|yoyo|storia|scuola|movie/i.test(c.name));if(f&&mixIdxOf(f)<0){let u=f.url||'';if(u.startsWith('stalker://')&&D.portal.id)u='stalker_ref://'+D.portal.id+'|'+u.substring(10);mix.push({id:'mix_'+Date.now()+'_'+mix.length,_srcId:f.id,number:mix.length+1,name:f.name,group:'DTT Italia',logo:f.logo||'',url:u,tvgId:f.tvgId||''});added++;}});renderMix();renderChs();toast(added>0?('Aggiunti '+added+' canali DTT Italia!'):'Canali DTT gia presenti o non trovati');}
+function renderMix(){document.getElementById('mixTitle').textContent='3. La Tua Lista ('+mix.length+')';document.getElementById('mixList').innerHTML=mix.map((c,i)=>`<div style="background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:6px 8px;margin-bottom:5px"><div class="row"><div class="num">${i+1}</div><img class="logo" src="${c.logo||''}" onerror="this.style.opacity=0.2"><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.name}</div><div style="font-size:10px;color:#94a3b8">${c.group}</div></div><button class="sm sec" onclick="mvMix(${i},-1)">&uarr;</button><button class="sm sec" onclick="mvMix(${i},1)">&darr;</button><button class="sm sec" onclick="editMixIdx=editMixIdx===${i}?-1:${i};renderMix()">&#9998;</button><button class="sm red" onclick="mix.splice(${i},1);renderMix();renderChs()">&#10006;</button></div>${editMixIdx===${i}?`<div style="margin-top:6px;padding-top:6px;border-top:1px solid #1e293b;display:flex;flex-direction:column;gap:4px"><input type="text" value="${c.name.replace(/"/g,'&quot;')}" onchange="mix[${i}].name=this.value;renderMix()" placeholder="Nome canale"><input type="text" value="${(c.logo||'').replace(/"/g,'&quot;')}" onchange="mix[${i}].logo=this.value;renderMix()" placeholder="URL Logo (https://...)"><div class="row"><input type="text" placeholder="Cerca EPG..." oninput="srchEpg(this.value,${i})" style="flex:1"><span style="font-size:10.5px;color:#38bdf8">${c.tvgId||'Auto'}</span></div><div id="epgR_${i}" style="max-height:90px;overflow-y:auto"></div></div>`:''}</div>`).join('')||'<div style="padding:18px;color:#64748b;font-size:12px;text-align:center">Clicca qualsiasi canale al centro: apparira qui subito numerato <b>1, 2, 3, 4...</b></div>';}
+function mvMix(i,d){if(i+d<0||i+d>=mix.length)return;const t=mix.at(i);mix.splice(i,1);mix.splice(i+d,0,t);renderMix();renderChs();}
+function clearMix(){mix=[];editMixIdx=-1;renderMix();renderChs();}
+async function srchEpg(q,idx){const r=await fetch(apiBase()+'/api/editor/epg_search?q='+encodeURIComponent(q));const a=await r.json();const b=document.getElementById('epgR_'+idx);if(b)b.innerHTML=a.map(e=>`<div style="padding:3px;border-bottom:1px solid #334155;cursor:pointer;font-size:11px" onclick="mix[${idx}].tvgId='${e.key.replace(/'/g,"\\'")}';renderMix()"><b>${e.label}</b></div>`).join('');}
+async function saveAll(){if(!D)return;await fetch(apiBase()+'/api/editor/save_portal_edits',{method:'POST',body:JSON.stringify({pKey:D.pKey,hiddenCats:D.hiddenCats,catRenames:D.catRenames,catOrder:D.catOrder,hiddenChs:D.hiddenChs,chRenames:D.chRenames,chLogos:D.chLogos,chOrder:D.chOrder,epgMap:D.epgMap})});await fetch(apiBase()+'/api/editor/save_mix_order',{method:'POST',body:JSON.stringify({channels:mix})});toast('Lista salvata e inviata alla TV ('+mix.length+' canali)!');}
+function exportM3u(){if(D)window.location.href='/api/editor/export_m3u?id='+encodeURIComponent(D.portal.id);}
+function exportMixM3u(){saveAll().then(()=>window.location.href='/api/editor/export_m3u?id=mix_custom_1');}
+init();</script></body></html>""";
+  Future<void> stop() async => await _server?.close(force: true);
+}
