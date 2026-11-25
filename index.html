@@ -64,29 +64,205 @@ input,select,textarea{width:100%;background:#111827;color:#f1f5f9;border:1px sol
 </div></div>
 <div id="toast" class="toast"></div>
 <div class="nav"><button class="nbtn on" onclick="tab(0,this)">Telecomando</button><button class="nbtn" onclick="tab(1,this)">Canali</button><button class="nbtn" onclick="tab(2,this)">Liste TV</button><button class="nbtn" onclick="tab(3,this)">Editor</button><button class="nbtn" onclick="tab(4,this)">Altro</button></div>
-<script>const CLOUD_URL="https://workers.dev";
-let MODE=location.port==="8898"?"lan":"cloud";
-const IS_LAN=location.port==="8898";
-let STATE={channels:[],playlists:[],categories:[],current:null};
-function toast(m){const t=document.getElementById("toast");t.innerText=m;t.style.display="block";clearTimeout(t._tm);t._tm=setTimeout(()=>t.style.display="none",2600);}
-function apiBase(){if(IS_LAN)return "";const ip=(localStorage.getItem("tv_lan_ip")||"").trim();return ip?("http://"+ip.replace(/^https?:\/\//,"")):"";}
-function setMode(m){MODE=m;mCloud.classList.toggle("on",m==="cloud");mLan.classList.toggle("on",m==="lan");cloudBar.style.display=m==="cloud"?"flex":"none";}
-function openLan(){const ip=(lanIp.value||localStorage.getItem("tv_lan_ip")||"").trim();if(!ip){toast("Inserisci IP:8898 del TV Box");lanIp.focus();return;}localStorage.setItem("tv_lan_ip",ip);location.href="http://"+ip.replace(/^https?:\/\//,"");}
-function savePair(){localStorage.setItem("tv_mac",macIn.value.trim().toUpperCase());localStorage.setItem("tv_pin",pinIn.value.trim());toast("Abbinamento salvato!");refreshState();}
-function tab(i,b){document.querySelectorAll(".page").forEach((p,k)=>p.classList.toggle("on",k===i));document.querySelectorAll(".nbtn").forEach(x=>x.classList.remove("on"));b.classList.add("on");if(i===1||i===2)refreshState();}
-function autoParse(){const s=(raw.value||"").trim();if(!s)return false;const macs=[...s.matchAll(/\b([0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}\b/g)].map(x=>x.toUpperCase().replace(/-/g,":"));let uM=s.match(/https?:\/\/[^\s"'<>|]+/i);if(!uM)uM=s.match(/\b([a-z0-9-]+(?:\.[a-z0-9-]+)+(?::\d+)?(?:\/[^\s"'<>|]*)?)/i);if(!uM)return false;let url=String(uM);if(!/^https?:\/\//i.test(url))url="http://"+url;u.value=url;try{if(!n.value.trim())n.value=new URL(url).hostname;}catch(_){}if(macs.length){t.value="stalker";togFields();m.value=macs;const snM=s.match(/(?:sn|serial)[^\w]*([A-Za-z0-9]{6,20})/i);if(snM)sn.value=String(snM);return true;}if(/username=/i.test(url)&&/password=/i.test(url)){try{const p=new URL(url);t.value="xtream";togFields();u.value=p.origin;us.value=p.searchParams.get("username")||"";pw.value=p.searchParams.get("password")||"";return true;}catch(_){}}t.value="m3u";togFields();return true;}
-async function autoAndSend(){const s=(raw.value||"").trim();if(!s){toast("Incolla prima il testo o il link!");return;}const macs=[...new Set([...s.matchAll(/\b([0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}\b/g)].map(x=>x.toUpperCase().replace(/-/g,":")))];if(autoParse()&&macs.length>1){const baseN=n.value.trim()||"Portal";for(let i=0;i<macs.length;i++){m.value=macs[i];n.value=baseN+" #"+(i+1);await sendPl();}toast("Inviati "+macs.length+" MAC al TV Box!");return;}if(autoParse()){await sendPl();}else{toast("URL o MAC non riconosciuto");}}
-function togFields(){fXt.style.display=t.value==="xtream"?"flex":"none";fSt.style.display=t.value==="stalker"?"flex":"none";}
-async function cloudPush(action,payload){const mac=(localStorage.getItem("tv_mac")||"").trim();const pin=(localStorage.getItem("tv_pin")||"").trim();if(!mac||!pin){toast("Inserisci MAC e PIN del TV Box");return;}const r=await fetch(CLOUD_URL+"/push",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({mac,pin,action,payload})});toast(r.ok?"Inviato al TV Box via Cloud!":"Errore invio Cloud");}
-async function cmd(c){const b=apiBase();if(IS_LAN||b){await fetch(b+"/api/remote_cmd",{method:"POST",body:JSON.stringify({cmd:c})});}else{await cloudPush("remote_cmd",{cmd:c});}}
-function loadTxtFile(inp){const f=inp.files&&inp.files;if(!f)return;const r=new FileReader();r.onload=()=>{n.value=f.name.replace(/\.[^.]+$/,"");t.value="m3u";u.value="data:audio/x-mpegurl;base64,"+btoa(unescape(encodeURIComponent(r.result)));toast("File caricato: "+f.name+" ? premi INVIA");};r.readAsText(f);}
-async function sendPl(){const rawV=(raw.value||"").trim();if(rawV&&!u.value.trim()){u.value=rawV;}if(!u.value.trim()){toast("Inserisci URL o carica file");return;}const pl={name:n.value.trim()||"Lista TV",type:t.value,url:u.value.trim(),username:us.value.trim(),password:pw.value.trim(),mac:m.value.trim(),sn:sn.value.trim(),deviceId:d1.value.trim(),deviceId2:d2.value.trim(),vpnPolicy:vp.value,vpnCountry:vc.value};const b=apiBase();if(IS_LAN||b){await fetch(b+"/api/add_playlist",{method:"POST",body:JSON.stringify(pl)});toast("Lista inviata al TV Box!");refreshState();}else{await cloudPush("add_playlist",pl);}raw.value="";u.value="";}
-async function sendCustomM3u(){const txt=(m3uTxt.value||"").trim();if(!txt)return;const b=apiBase();if(IS_LAN||b){await fetch(b+"/api/upload_m3u",{method:"POST",body:JSON.stringify({name:"Lista Editor",content:txt})});toast("Lista inviata!");}else{await cloudPush("add_playlist",{name:"Lista Editor",type:"m3u",url:"data:audio/x-mpegurl;base64,"+btoa(unescape(encodeURIComponent(txt)))});}}
-async function sendCin(){const link=(cinU.value||"").trim();if(!link)return;const b=apiBase();if(IS_LAN||b){const r=await fetch(b+"/api/cineteca_import",{method:"POST",body:JSON.stringify({url:link})});const j=await r.json();toast("Cineteca: +"+(j.added||0)+" sorgenti!");}else{await cloudPush("cineteca_import",{url:link});}cinU.value="";}
-async function dlUrl(){const b=apiBase();if(!IS_LAN&&!b){toast("Inserisci IP Wi-Fi/LAN per scaricare");return;}const link=(dlCode.value||"").trim();if(!link)return;dlSt.innerText="Download sul TV Box...";const r=await fetch(b+"/api/download_url",{method:"POST",body:JSON.stringify({url:link})});const j=await r.json();dlSt.innerText=r.ok?("Salvato in Download: "+j.file):("Errore: "+(j.msg||""));}
-async function sendEpg(){const link=(epgU.value||"").trim();if(!link)return;const b=apiBase();if(IS_LAN||b){await fetch(b+"/api/add_epg",{method:"POST",body:JSON.stringify({url:link})});toast("EPG inviata!");}else{await cloudPush("add_epg",{url:link});}epgU.value="";}
-async function restartTv(){const b=apiBase();if(IS_LAN||b){await fetch(b+"/api/restart_app",{method:"POST"});toast("Riavvio TV...");}else{await cloudPush("remote_cmd",{cmd:"restart"});}}
-function renderCh(){const q=(qCh.value||"").toLowerCase(),cat=catSel.value;const list=(STATE.channels||[]).filter(c=>(!cat||c.group===cat)&&(!q||c.name.toLowerCase().includes(q))).slice(0,200);chList.innerHTML=list.map(c=>`<div class="item" onclick="playCh('${c.id}')"><div><b>${c.num}. ${c.name}</b><div class="sub">${c.group}</div></div><span>?</span></div>`).join("");}
-async function playCh(id){const b=apiBase();if(IS_LAN||b){await fetch(b+"/api/play_channel",{method:"POST",body:JSON.stringify({id})});toast("Cambio canale...");}}
-async function refreshState(){const b=apiBase();if(!IS_LAN&&!b)return;try{const r=await fetch(b+"/api/state");STATE=await r.json();if(STATE.current){curCh.innerText=STATE.current.name;curGrp.innerText=STATE.current.group||"LIVE";curNow.innerText=STATE.current.now||"In onda";curBar.style.width=(STATE.current.nowPct||0)+"%";}catSel.innerHTML='<option value="">Tutte le categorie</option>'+(STATE.categories||[]).map(c=>`<option value="${c}">${c}</option>`).join("");plList.innerHTML=(STATE.playlists||[]).map(p=>`<div class="item"><div><b>${p.name}</b><div class="sub">${p.type}</div></div></div>`).join("");renderCh();}catch(_){}}
-window.onload=()=>{macIn.value=localStorage.getItem("tv_mac")||"";pinIn.value=localStorage.getItem("tv_pin")||"";lanIp.value=localStorage.getItem("tv_lan_ip")||"";setMode(IS_LAN?"lan":"cloud");if(IS_LAN)refreshState();};</script></body></html>
+<script>
+let MODE = location.port === "8898" ? "lan" : "cloud";
+const IS_LAN = location.port === "8898";
+let STATE = {channels:[], playlists:[], categories:[], current:null};
+
+function toast(m){
+  const t = document.getElementById("toast");
+  t.innerText = m; t.style.display = "block";
+  clearTimeout(t._tm); t._tm = setTimeout(() => t.style.display = "none", 2600);
+}
+function apiBase(){
+  if (IS_LAN) return "";
+  const ip = (localStorage.getItem("tv_lan_ip") || "").trim();
+  return ip ? ("http://" + ip.replace(/^https?:\/\//, "")) : "";
+}
+function setMode(m){
+  MODE = m;
+  mCloud.classList.toggle("on", m === "cloud");
+  mLan.classList.toggle("on", m === "lan");
+  cloudBar.style.display = m === "cloud" ? "flex" : "none";
+}
+function openLan(){
+  const ip = (lanIp.value || localStorage.getItem("tv_lan_ip") || "").trim();
+  if (!ip){ toast("Inserisci IP:8898 del TV Box"); lanIp.focus(); return; }
+  localStorage.setItem("tv_lan_ip", ip);
+  const target = ip.includes(":") ? ip : (ip + ":8898");
+  location.href = "http://" + target.replace(/^https?:\/\//, "");
+}
+function savePair(){
+  localStorage.setItem("tv_mac", macIn.value.trim().toUpperCase());
+  localStorage.setItem("tv_pin", pinIn.value.trim());
+  toast("Abbinamento salvato!");
+  refreshState();
+}
+function tab(i, b){
+  document.querySelectorAll(".page").forEach((p, k) => p.classList.toggle("on", k === i));
+  document.querySelectorAll(".nbtn").forEach(x => x.classList.remove("on"));
+  b.classList.add("on");
+  if (i === 1 || i === 2) refreshState();
+}
+function topicFor(mac, pin){
+  const raw = "tvboxtotal_" + mac.trim().toUpperCase() + "_" + pin.trim();
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < raw.length; i++){
+    h ^= raw.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  const cleanMac = mac.trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+  return "tvbox_" + cleanMac + "_" + h.toString(16);
+}
+async function cloudPush(action, payload){
+  const mac = (macIn.value || localStorage.getItem("tv_mac") || "").trim().toUpperCase();
+  const pin = (pinIn.value || localStorage.getItem("tv_pin") || "").trim();
+  if (!mac || !pin){ toast("Inserisci MAC TV e PIN in alto!"); return false; }
+  localStorage.setItem("tv_mac", mac); localStorage.setItem("tv_pin", pin);
+  const topic = topicFor(mac, pin);
+  try {
+    const r = await fetch("https://ntfy.sh" + topic, {
+      method: "POST",
+      body: JSON.stringify({action, payload, ts: Date.now()})
+    });
+    toast(r.ok ? "Inviato al TV Box via Cloud!" : "Errore invio Cloud");
+    return r.ok;
+  } catch (e) {
+    toast("Errore rete Cloud");
+    return false;
+  }
+}
+function autoParse(){
+  const s = (raw.value || "").trim(); if (!s) return false;
+  const macs = Array.from(s.matchAll(/\b([0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}\b/g), x => x.at(0).toUpperCase().replace(/-/g, ":"));
+  let uM = s.match(/https?:\/\/[^\s"'<>|]+/i);
+  if (!uM) uM = s.match(/\b([a-z0-9-]+(?:\.[a-z0-9-]+)+(?::\d+)?(?:\/[^\s"'<>|]*)?)/i);
+  if (!uM) return false;
+  let url = uM.at(0); if (!/^https?:\/\//i.test(url)) url = "http://" + url;
+  u.value = url;
+  try { if (!n.value.trim()) n.value = new URL(url).hostname; } catch(_){}
+  if (macs.length){
+    t.value = "stalker"; togFields(); m.value = macs.at(0);
+    const snM = s.match(/(?:sn|serial)[^\w]*([A-Za-z0-9]{6,20})/i); if (snM) sn.value = snM.at(1);
+    return true;
+  }
+  if (/username=/i.test(url) && /password=/i.test(url)){
+    try {
+      const p = new URL(url); t.value = "xtream"; togFields();
+      u.value = p.origin; us.value = p.searchParams.get("username") || ""; pw.value = p.searchParams.get("password") || "";
+      return true;
+    } catch(_){}
+  }
+  t.value = "m3u"; togFields(); return true;
+}
+async function autoAndSend(){
+  const s = (raw.value || "").trim();
+  if (!s){ toast("Incolla prima il testo o il link!"); return; }
+  const macs = [...new Set(Array.from(s.matchAll(/\b([0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}\b/g), x => x.at(0).toUpperCase().replace(/-/g, ":")))];
+  if (autoParse() && macs.length > 1){
+    const baseN = n.value.trim() || "Portal";
+    for (let i = 0; i < macs.length; i++){
+      m.value = macs.at(i); n.value = baseN + " #" + (i + 1);
+      await sendPl();
+    }
+    toast("Inviati " + macs.length + " MAC al TV Box!"); return;
+  }
+  if (autoParse()){ await sendPl(); } else { toast("URL o MAC non riconosciuto"); }
+}
+function togFields(){
+  fXt.style.display = t.value === "xtream" ? "flex" : "none";
+  fSt.style.display = t.value === "stalker" ? "flex" : "none";
+}
+async function cmd(c){
+  if (IS_LAN){ await fetch("/api/remote_cmd", {method:"POST", body:JSON.stringify({cmd:c})}); }
+  else { await cloudPush("remote_cmd", {cmd:c}); }
+}
+function loadTxtFile(inp){
+  const f = inp.files && inp.files.item(0); if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    n.value = f.name.replace(/\.[^.]+$/, ""); t.value = "m3u";
+    u.value = "data:audio/x-mpegurl;base64," + btoa(unescape(encodeURIComponent(r.result)));
+    toast("File caricato: " + f.name + " -> premi INVIA");
+  };
+  r.readAsText(f);
+}
+async function sendPl(){
+  if ((raw.value || "").trim() && !u.value.trim()) autoParse();
+  if (!u.value.trim()){ toast("Inserisci URL o carica file"); return; }
+  const pl = {
+    name: n.value.trim() || "Lista TV", type: t.value, url: u.value.trim(),
+    username: us.value.trim(), password: pw.value.trim(), mac: m.value.trim(),
+    sn: sn.value.trim(), deviceId: d1.value.trim(), deviceId2: d2.value.trim(),
+    vpnPolicy: vp.value, vpnCountry: vc.value
+  };
+  if (IS_LAN){
+    await fetch("/api/add_playlist", {method:"POST", body:JSON.stringify(pl)});
+    toast("Lista inviata al TV Box!"); refreshState();
+  } else {
+    await cloudPush("add_playlist", pl);
+  }
+  raw.value = ""; u.value = "";
+}
+async function sendCustomM3u(){
+  const txt = (m3uTxt.value || "").trim(); if (!txt) return;
+  if (IS_LAN){ await fetch("/api/upload_m3u", {method:"POST", body:JSON.stringify({name:"Lista Editor", content:txt})}); toast("Lista inviata!"); }
+  else { await cloudPush("add_playlist", {name:"Lista Editor", type:"m3u", url:"data:audio/x-mpegurl;base64," + btoa(unescape(encodeURIComponent(txt)))}); }
+}
+async function sendCin(){
+  const link = (cinU.value || "").trim(); if (!link) return;
+  if (IS_LAN){ const r = await fetch("/api/cineteca_import", {method:"POST", body:JSON.stringify({url:link})}); const j = await r.json(); toast("Cineteca: +" + (j.added || 0)); }
+  else { await cloudPush("cineteca_import", {url:link}); }
+  cinU.value = "";
+}
+async function dlUrl(){
+  if (!IS_LAN){ toast("Apri modalità Wi-Fi / LAN per scaricare file sul TV Box"); return; }
+  const link = (dlCode.value || "").trim(); if (!link) return;
+  dlSt.innerText = "Download sul TV Box...";
+  const r = await fetch("/api/download_url", {method:"POST", body:JSON.stringify({url:link})});
+  const j = await r.json();
+  dlSt.innerText = r.ok ? ("Salvato in Download: " + j.file) : ("Errore: " + (j.msg || ""));
+}
+async function sendEpg(){
+  const link = (epgU.value || "").trim(); if (!link) return;
+  if (IS_LAN){ await fetch("/api/add_epg", {method:"POST", body:JSON.stringify({url:link})}); toast("EPG inviata!"); }
+  else { await cloudPush("add_epg", {url:link}); }
+  epgU.value = "";
+}
+async function restartTv(){
+  if (IS_LAN){ await fetch("/api/restart_app", {method:"POST"}); toast("Riavvio TV..."); }
+  else { await cloudPush("remote_cmd", {cmd:"restart"}); }
+}
+function renderCh(){
+  const q = (qCh.value || "").toLowerCase(), cat = catSel.value;
+  const list = (STATE.channels || []).filter(c => (!cat || c.group === cat) && (!q || c.name.toLowerCase().includes(q))).slice(0, 200);
+  chList.innerHTML = list.map(c => `<div class="item" onclick="playCh('${c.id}')"><div><b>${c.num}. ${c.name}</b><div class="sub">${c.group}</div></div><span>▶</span></div>`).join("");
+}
+async function playCh(id){
+  if (IS_LAN){ await fetch("/api/play_channel", {method:"POST", body:JSON.stringify({id})}); toast("Cambio canale..."); }
+}
+async function refreshState(){
+  if (!IS_LAN) return;
+  try {
+    const r = await fetch("/api/state"); STATE = await r.json();
+    if (STATE.current){
+      curCh.innerText = STATE.current.name; curGrp.innerText = STATE.current.group || "LIVE";
+      curNow.innerText = STATE.current.now || "In onda"; curBar.style.width = (STATE.current.nowPct || 0) + "%";
+    }
+    catSel.innerHTML = '<option value="">Tutte le categorie</option>' + (STATE.categories || []).map(c => `<option value="${c}">${c}</option>`).join("");
+    plList.innerHTML = (STATE.playlists || []).map(p => `<div class="item"><div><b>${p.name}</b><div class="sub">${p.type}</div></div></div>`).join("");
+    renderCh();
+  } catch(_){}
+}
+window.onload = () => {
+  const qs = new URLSearchParams(location.search);
+  if (qs.get("mac")) localStorage.setItem("tv_mac", qs.get("mac").trim().toUpperCase());
+  if (qs.get("pin")) localStorage.setItem("tv_pin", qs.get("pin").trim());
+  if (qs.get("ip")) localStorage.setItem("tv_lan_ip", qs.get("ip").trim());
+  macIn.value = localStorage.getItem("tv_mac") || "";
+  pinIn.value = localStorage.getItem("tv_pin") || "";
+  lanIp.value = localStorage.getItem("tv_lan_ip") || "";
+  setMode(IS_LAN ? "lan" : "cloud");
+  if (IS_LAN) refreshState();
+};
+</script></body></html>
