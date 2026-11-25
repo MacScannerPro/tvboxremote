@@ -1,4 +1,4 @@
-const CLOUD_URL="https://workers.dev";
+﻿const CLOUD_URL="https://workers.dev";
 let MODE=location.port==="8898"?"lan":"cloud";
 const IS_LAN=location.port==="8898";
 let STATE={channels:[],playlists:[],categories:[],current:null};
@@ -22,3 +22,26 @@ function renderCh(){const q=(qCh.value||"").toLowerCase(),cat=catSel.value;const
 async function playCh(id){const b=apiBase();if(IS_LAN||b){await fetch(b+"/api/play_channel",{method:"POST",body:JSON.stringify({id})});toast("Cambio canale...");}}
 async function refreshState(){const b=apiBase();if(!IS_LAN&&!b)return;try{const r=await fetch(b+"/api/state");STATE=await r.json();if(STATE.current){curCh.innerText=STATE.current.name;curGrp.innerText=STATE.current.group||"LIVE";curNow.innerText=STATE.current.now||"In onda";curBar.style.width=(STATE.current.nowPct||0)+"%";}catSel.innerHTML='<option value="">Tutte le categorie</option>'+(STATE.categories||[]).map(c=>`<option value="${c}">${c}</option>`).join("");plList.innerHTML=(STATE.playlists||[]).map(p=>`<div class="item"><div><b>${p.name}</b><div class="sub">${p.type}</div></div></div>`).join("");renderCh();}catch(_){}}
 window.onload=()=>{macIn.value=localStorage.getItem("tv_mac")||"";pinIn.value=localStorage.getItem("tv_pin")||"";lanIp.value=localStorage.getItem("tv_lan_ip")||"";setMode(IS_LAN?"lan":"cloud");if(IS_LAN)refreshState();};
+function autoParse(){
+  const s=(raw.value||"").trim(); if(!s)return;
+  const uM=s.match(/https?:\/\/[^\s"'<>]+/i);
+  const macM=s.match(/\b([0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}\b/);
+  if(uM){
+    const url=uM; u.value=url;
+    try{ if(!n.value.trim()) n.value=new URL(url).hostname; }catch(_){}
+    if(macM){
+      t.value="stalker"; togFields();
+      m.value=macM.toUpperCase().replace(/-/g,":");
+      const snM=s.match(/(?:sn|serial)[^\w]*([A-Za-z0-9]{6,20})/i); if(snM) sn.value=snM;
+      toast("Portale MAC riconosciuto!"); return;
+    }
+    if(/username=/i.test(url)&&/password=/i.test(url)){
+      try{
+        const p=new URL(url); t.value="xtream"; togFields();
+        u.value=p.origin; us.value=p.searchParams.get("username")||""; pw.value=p.searchParams.get("password")||"";
+        toast("Xtream riconosciuto!"); return;
+      }catch(_){}
+    }
+    t.value="m3u"; togFields(); toast("URL M3U compilato!");
+  }
+}
