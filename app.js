@@ -29,13 +29,13 @@ function autoParse(){
   let uM=s.match(/https?:\/\/[^\s"'<>|]+/i);
   if(!uM) uM=s.match(/\b([a-z0-9-]+(?:\.[a-z0-9-]+)+(?::\d+)?(?:\/[^\s"'<>|]*)?)/i);
   if(uM){
-    let url=uM; if(!/^https?:\/\//i.test(url)) url="http://"+url;
+    let url=String(uM[0]); if(!/^https?:\/\//i.test(url)) url="http://"+url;
     u.value=url;
     try{ if(!n.value.trim()) n.value=new URL(url).hostname; }catch(_){}
     if(macM){
       t.value="stalker"; togFields();
-      m.value=macM.toUpperCase().replace(/-/g,":");
-      const snM=s.match(/(?:sn|serial)[^\w]*([A-Za-z0-9]{6,20})/i); if(snM) sn.value=snM;
+      m.value=String(macM[0]).toUpperCase().replace(/-/g,":");
+      const snM=s.match(/(?:sn|serial)[^\w]*([A-Za-z0-9]{6,20})/i); if(snM) sn.value=String(snM[1]);
       toast("Portale MAC riconosciuto!"); return;
     }
     if(/username=/i.test(url)&&/password=/i.test(url)){
