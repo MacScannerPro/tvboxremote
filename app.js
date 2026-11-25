@@ -12,7 +12,7 @@ function togFields(){fXt.style.display=t.value==="xtream"?"flex":"none";fSt.styl
 async function cloudPush(action,payload){const mac=(localStorage.getItem("tv_mac")||"").trim();const pin=(localStorage.getItem("tv_pin")||"").trim();if(!mac||!pin){toast("Inserisci MAC e PIN del TV Box");return;}const r=await fetch(CLOUD_URL+"/push",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({mac,pin,action,payload})});toast(r.ok?"Inviato al TV Box via Cloud!":"Errore invio Cloud");}
 async function cmd(c){const b=apiBase();if(IS_LAN||b){await fetch(b+"/api/remote_cmd",{method:"POST",body:JSON.stringify({cmd:c})});}else{await cloudPush("remote_cmd",{cmd:c});}}
 function loadTxtFile(inp){const f=inp.files&&inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{n.value=f.name.replace(/\.[^.]+$/,"");t.value="m3u";const dUrl="data:audio/x-mpegurl;base64,"+btoa(unescape(encodeURIComponent(r.result)));u.value=dUrl;if(typeof raw!=="undefined")raw.value="FILE: "+f.name;toast("File caricato: "+f.name+" -> premi INVIA");};r.readAsText(f);}
-async function sendPl(){const rawV=(raw.value||"").trim();if(rawV&&!rawV.startsWith("FILE:")&&!u.value.trim()){u.value=rawV;}if(!u.value.trim()){toast("Inserisci URL o carica file");return;}const pl={name:n.value.trim()||"Lista TV",type:t.value,url:u.value.trim(),username:us.value.trim(),password:pw.value.trim(),mac:m.value.trim(),sn:sn.value.trim(),deviceId:d1.value.trim(),deviceId2:d2.value.trim(),vpnPolicy:vp.value,vpnCountry:vc.value};const b=apiBase();if(IS_LAN||b){await fetch(b+"/api/add_playlist",{method:"POST",body:JSON.stringify(pl)});toast("Lista inviata al TV Box!");refreshState();}else{await cloudPush("add_playlist",pl);}raw.value="";u.value="";}
+async function sendPl(){if((raw.value||'').trim()&&!u.value.trim())autoParse();const rawV=(raw.value||"").trim();if(rawV&&!rawV.startsWith("FILE:")&&!u.value.trim()){u.value=rawV;}if(!u.value.trim()){toast("Inserisci URL o carica file");return;}const pl={name:n.value.trim()||"Lista TV",type:t.value,url:u.value.trim(),username:us.value.trim(),password:pw.value.trim(),mac:m.value.trim(),sn:sn.value.trim(),deviceId:d1.value.trim(),deviceId2:d2.value.trim(),vpnPolicy:vp.value,vpnCountry:vc.value};const b=apiBase();if(IS_LAN||b){await fetch(b+"/api/add_playlist",{method:"POST",body:JSON.stringify(pl)});toast("Lista inviata al TV Box!");refreshState();}else{await cloudPush("add_playlist",pl);}raw.value="";u.value="";}
 async function sendCustomM3u(){const txt=(m3uTxt.value||"").trim();if(!txt)return;const b=apiBase();if(IS_LAN||b){await fetch(b+"/api/upload_m3u",{method:"POST",body:JSON.stringify({name:"Lista Editor",content:txt})});toast("Lista inviata!");}else{await cloudPush("add_playlist",{name:"Lista Editor",type:"m3u",url:"data:audio/x-mpegurl;base64,"+btoa(unescape(encodeURIComponent(txt)))});}}
 async function sendCin(){const link=(cinU.value||"").trim();if(!link)return;const b=apiBase();if(IS_LAN||b){const r=await fetch(b+"/api/cineteca_import",{method:"POST",body:JSON.stringify({url:link})});const j=await r.json();toast("Cineteca: +"+(j.added||0)+" sorgenti!");}else{await cloudPush("cineteca_import",{url:link});}cinU.value="";}
 async function dlUrl(){const b=apiBase();if(!IS_LAN&&!b){toast("Inserisci IP Wi-Fi/LAN per scaricare");return;}const link=(dlCode.value||"").trim();if(!link)return;dlSt.innerText="Download sul TV Box...";const r=await fetch(b+"/api/download_url",{method:"POST",body:JSON.stringify({url:link})});const j=await r.json();dlSt.innerText=r.ok?("Salvato in Download: "+j.file):("Errore: "+(j.msg||""));}
@@ -22,12 +22,15 @@ function renderCh(){const q=(qCh.value||"").toLowerCase(),cat=catSel.value;const
 async function playCh(id){const b=apiBase();if(IS_LAN||b){await fetch(b+"/api/play_channel",{method:"POST",body:JSON.stringify({id})});toast("Cambio canale...");}}
 async function refreshState(){const b=apiBase();if(!IS_LAN&&!b)return;try{const r=await fetch(b+"/api/state");STATE=await r.json();if(STATE.current){curCh.innerText=STATE.current.name;curGrp.innerText=STATE.current.group||"LIVE";curNow.innerText=STATE.current.now||"In onda";curBar.style.width=(STATE.current.nowPct||0)+"%";}catSel.innerHTML='<option value="">Tutte le categorie</option>'+(STATE.categories||[]).map(c=>`<option value="${c}">${c}</option>`).join("");plList.innerHTML=(STATE.playlists||[]).map(p=>`<div class="item"><div><b>${p.name}</b><div class="sub">${p.type}</div></div></div>`).join("");renderCh();}catch(_){}}
 window.onload=()=>{macIn.value=localStorage.getItem("tv_mac")||"";pinIn.value=localStorage.getItem("tv_pin")||"";lanIp.value=localStorage.getItem("tv_lan_ip")||"";setMode(IS_LAN?"lan":"cloud");if(IS_LAN)refreshState();};
+
 function autoParse(){
   const s=(raw.value||"").trim(); if(!s)return;
-  const uM=s.match(/https?:\/\/[^\s"'<>]+/i);
   const macM=s.match(/\b([0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}\b/);
+  let uM=s.match(/https?:\/\/[^\s"'<>|]+/i);
+  if(!uM) uM=s.match(/\b([a-z0-9-]+(?:\.[a-z0-9-]+)+(?::\d+)?(?:\/[^\s"'<>|]*)?)/i);
   if(uM){
-    const url=uM; u.value=url;
+    let url=uM; if(!/^https?:\/\//i.test(url)) url="http://"+url;
+    u.value=url;
     try{ if(!n.value.trim()) n.value=new URL(url).hostname; }catch(_){}
     if(macM){
       t.value="stalker"; togFields();
@@ -42,6 +45,6 @@ function autoParse(){
         toast("Xtream riconosciuto!"); return;
       }catch(_){}
     }
-    t.value="m3u"; togFields(); toast("URL M3U compilato!");
+    t.value="m3u"; togFields(); toast("URL compilato!");
   }
 }
