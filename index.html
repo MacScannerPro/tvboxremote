@@ -1,268 +1,279 @@
-﻿<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>TvBox Remote</title><link rel="manifest" href="manifest.json"><style>*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,sans-serif}
-body{background:#090e1a;color:#f1f5f9;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
-.top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;background:#0f172a;border-bottom:1px solid #1e293b;flex-wrap:wrap}
-.brand{display:flex;align-items:center;gap:8px;font-weight:900;font-size:15px;color:#38bdf8}
-.dot{width:9px;height:9px;border-radius:50%;background:#10b981;box-shadow:0 0 8px #10b981}
-.modes{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.mbtn{background:#1e293b;color:#94a3b8;border:1px solid #334155;padding:6px 10px;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer}
-.mbtn.on{background:#38bdf8;color:#090e1a;border-color:#38bdf8}
-#lanIp{width:135px;padding:6px 8px;font-size:11px}
-.cbar{display:flex;gap:6px;padding:8px 12px;background:#0b1220;border-bottom:1px solid #1e293b}
-input,select,textarea{width:100%;background:#111827;color:#f1f5f9;border:1px solid #334155;border-radius:10px;padding:9px 10px;font-size:13px;outline:none}
-.row{display:flex;gap:6px;align-items:center}
-.btn{width:100%;background:#10b981;color:#052e16;border:none;border-radius:10px;padding:10px 12px;font-weight:900;font-size:12px;cursor:pointer}
-.btn.blue{background:#38bdf8;color:#082f49}.btn.gray{background:#334155;color:#f1f5f9}
-.page{display:none;flex:1;overflow:hidden;padding:10px 12px}.page.on{display:flex;flex-direction:column}
-.scroll{flex:1;overflow-y:auto}
-.remote-wrap{flex:1;display:flex;flex-direction:column;justify-content:space-between;align-items:center;gap:8px;max-width:460px;width:100%;margin:0 auto}
-.now-card{width:100%;background:#0f172a;border:1px solid #1e293b;border-radius:14px;padding:10px 12px}
-.now-top{display:flex;justify-content:space-between;align-items:center}.now-ch{font-weight:900;font-size:15px}.now-grp{font-size:10px;background:#1e293b;color:#38bdf8;padding:2px 7px;border-radius:6px;font-weight:800}
-.now-epg{font-size:12px;color:#94a3b8;margin:4px 0 6px}.prog{height:4px;background:#1e293b;border-radius:4px;overflow:hidden}.prog-fill{height:100%;background:#38bdf8;width:0%}
-.dpad-zone{display:flex;align-items:center;justify-content:center;gap:14px;width:100%;my:auto}
-.rocker{display:flex;flex-direction:column;align-items:center;gap:6px}.rlbl{font-size:9px;font-weight:800;color:#64748b}
-.rbtn{width:62px;height:48px;border-radius:12px;background:#1e293b;color:#f1f5f9;border:1px solid #334155;font-weight:800;font-size:11px;cursor:pointer}
-.dpad-ring{position:relative;width:168px;height:168px;border-radius:50%;background:radial-gradient(circle,#1e293b 0%,#0f172a 100%);border:2px solid #334155;flex-shrink:0}
-.dbtn{position:absolute;background:transparent;border:none;color:#e2e8f0;font-size:18px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.d-up{top:4px;left:50%;transform:translateX(-50%);width:54px;height:42px}.d-down{bottom:4px;left:50%;transform:translateX(-50%);width:54px;height:42px}
-.d-left{left:4px;top:50%;transform:translateY(-50%);width:42px;height:54px}.d-right{right:4px;top:50%;transform:translateY(-50%);width:42px;height:54px}
-.d-ok{top:50%;left:50%;transform:translate(-50%,-50%);width:62px;height:62px;border-radius:50%;background:#38bdf8;color:#090e1a;font-size:15px}
-.qbar{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%}.qbtn{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:10px;padding:10px 6px;font-size:11px;font-weight:800;cursor:pointer}
-.list{display:flex;flex-direction:column;gap:6px}.item{display:flex;justify-content:space-between;align-items:center;background:#0f172a;border:1px solid #1e293b;padding:10px 12px;border-radius:10px;cursor:pointer}.sub{font-size:11px;color:#94a3b8}
-.nav{display:grid;grid-template-columns:repeat(5,1fr);background:#0f172a;border-top:1px solid #1e293b}.nbtn{background:transparent;border:none;color:#94a3b8;padding:12px 4px;font-size:11px;font-weight:800;cursor:pointer}.nbtn.on{color:#38bdf8;border-top:2px solid #38bdf8}
-.toast{display:none;position:fixed;bottom:62px;left:50%;transform:translateX(-50%);background:#10b981;color:#052e16;padding:8px 14px;border-radius:20px;font-weight:800;font-size:12px;z-index:99}</style></head><body>
-<div class="top"><div class="brand"><span class="dot"></span>TvBox Remote</div><div class="modes"><button id="mCloud" class="mbtn on" onclick="setMode('cloud')">Cloud</button><button id="mLan" class="mbtn" onclick="openLan()">Wi-Fi / LAN</button><input id="lanIp" placeholder="192.168.x.x:8898"></div></div>
-<div id="cloudBar" class="cbar"><input id="macIn" placeholder="MAC TV (TB-XX:XX:XX:XX)"><input id="pinIn" placeholder="PIN (6 cifre)"><button class="btn" style="width:auto;padding:8px 12px" onclick="savePair()">ABBINA</button></div>
-<div id="p0" class="page on"><div class="remote-wrap">
-  <div class="now-card"><div class="now-top"><div id="curCh" class="now-ch">Nessun canale</div><div id="curGrp" class="now-grp">LIVE</div></div><div id="curNow" class="now-epg">Pronto</div><div class="prog"><div id="curBar" class="prog-fill"></div></div></div>
-  <div class="dpad-zone">
-    <div class="rocker"><button class="rbtn" onclick="cmd('vol_up')">VOL +</button><div class="rlbl">AUDIO</div><button class="rbtn" onclick="cmd('vol_down')">VOL -</button></div>
-    <div class="dpad-ring"><button class="dbtn d-up" onclick="cmd('up')">?</button><button class="dbtn d-left" onclick="cmd('left')">?</button><button class="dbtn d-ok" onclick="cmd('ok')">OK</button><button class="dbtn d-right" onclick="cmd('right')">?</button><button class="dbtn d-down" onclick="cmd('down')">?</button></div>
-    <div class="rocker"><button class="rbtn" onclick="cmd('ch_up')">CH ?</button><div class="rlbl">CANALI</div><button class="rbtn" onclick="cmd('ch_down')">CH ?</button></div>
+<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0F294A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="/manifest.json">
+<title>TvBox Control — Global Console App</title>
+<style>
+:root{--bg:#0F294A;--sb:#0B1F3A;--card:#163761;--c2:#1F477A;--bd:rgba(56,189,248,.3);--ac:#38BDF8;--ok:#22C55E;--wn:#F59E0B;--no:#EF4444;--tx:#F8FAFC;--sub:#CBD5E1}
+body.th-gray{--bg:#27303F;--sb:#1F2733;--card:#333E52;--c2:#414F66;--bd:rgba(96,165,250,.3);--ac:#60A5FA;--tx:#F8FAFC;--sub:#E2E8F0}
+body.th-light{--bg:#EEF2F6;--sb:#FFFFFF;--card:#FFFFFF;--c2:#E2E8F0;--bd:#CBD5E1;--ac:#0284C7;--tx:#0F172A;--sub:#475569}
+body.th-dark{--bg:#090E1A;--sb:#0F172A;--card:#152036;--c2:#1E293B;--bd:rgba(56,189,248,.22);--ac:#38BDF8;--tx:#F8FAFC;--sub:#94A3B8}
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+body{background:var(--bg);color:var(--tx);display:flex;height:100dvh;overflow:hidden;transition:background .2s,color .2s}
+.sb{width:246px;background:var(--sb);border-right:1px solid var(--bd);display:flex;flex-direction:column;padding:15px 12px;gap:6px;flex-shrink:0}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 6px 13px;border-bottom:1px solid var(--bd);margin-bottom:4px}
+.logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#0284C7,#38BDF8);display:grid;place-items:center;font-weight:900;color:#061629;flex-shrink:0}
+.nb{padding:11px 12px;border-radius:10px;border:1px solid transparent;background:0;color:var(--sub);font-size:13px;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;justify-content:space-between}
+.nb:hover{background:rgba(56,189,248,.1);color:var(--tx)}.nb.act{background:rgba(56,189,248,.18);color:var(--ac);border-color:var(--ac)}
+.st{margin-top:auto;background:var(--card);border:1px solid var(--bd);border-radius:11px;padding:11px;font-size:11.5px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;background:var(--wn)}.dot.on{background:var(--ok);box-shadow:0 0 8px var(--ok)}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.top{min-height:56px;background:var(--sb);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;padding:8px 18px;gap:10px;flex-wrap:wrap}
+.devbar{display:flex;align-items:center;gap:6px;overflow-x:auto;max-width:72%}
+.devchip{padding:6px 11px;border-radius:9px;border:1px solid var(--bd);background:var(--card);color:var(--sub);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.devchip.act{background:rgba(56,189,248,.22);color:var(--tx);border-color:var(--ac)}
+.tag-lan{background:rgba(34,197,94,.22);color:#22C55E;padding:2px 6px;border-radius:5px;font-size:10px;font-weight:800}
+.tag-cld{background:rgba(168,85,247,.25);color:#C084FC;padding:2px 6px;border-radius:5px;font-size:10px;font-weight:800}
+.cnt{flex:1;overflow-y:auto;padding:18px}.vw{display:none;flex-direction:column;gap:16px;max-width:1180px;margin:0 auto}.vw.act{display:flex}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.cd{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;box-shadow:0 6px 20px rgba(0,0,0,.15)}
+.cd h3{font-size:14px;color:var(--ac);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+label{display:block;font-size:11px;color:var(--sub);margin:8px 0 4px;font-weight:600}
+input,select,textarea{width:100%;background:var(--bg);border:1px solid var(--bd);color:var(--tx);padding:9px 11px;border-radius:8px;font-size:13px}
+.btn{padding:8px 13px;border-radius:8px;border:0;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.bp{background:var(--ac);color:#061629}.bs{background:var(--ok);color:#052e16}.bc{background:var(--c2);color:var(--tx);border:1px solid var(--bd)}.bd{background:rgba(239,68,68,.18);color:#F87171;border:1px solid rgba(239,68,68,.4)}
+.row{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.dp{display:grid;grid-template-columns:repeat(3,62px);grid-template-rows:repeat(3,50px);gap:7px;justify-content:center;margin:8px auto}
+.dp button{border-radius:11px;border:1px solid var(--bd);background:var(--c2);color:var(--tx);font-size:15px;font-weight:800;cursor:pointer}.dp button.ok{background:var(--ac);color:#061629}
+.it{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:var(--bg);border:1px solid var(--bd);border-radius:9px;margin-bottom:7px}
+.it.sel{border-color:var(--ac);box-shadow:0 0 0 1px var(--ac)}
+.bg{padding:2px 7px;border-radius:5px;font-size:10px;font-weight:800;background:rgba(56,189,248,.18);color:var(--ac)}
+.chip{padding:5px 10px;border-radius:20px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font-size:11.5px;font-weight:700;cursor:pointer}
+.chip:hover,.chip.on{background:var(--ac);color:#061629;border-color:var(--ac)}
+#toast{position:fixed;bottom:20px;right:20px;background:#0F172A;border:1px solid var(--ac);color:#fff;padding:10px 16px;border-radius:9px;font-size:12.5px;opacity:0;pointer-events:none;transition:.2s;z-index:99}#toast.sh{opacity:1}
+@media(max-width:860px){body{flex-direction:column}.sb{width:100%;flex-direction:row;overflow-x:auto;padding:8px}.brand,.st{display:none}.nb{white-space:nowrap;padding:8px 10px;font-size:12px}}
+</style></head>
+<body>
+<aside class="sb">
+  <div class="brand"><div class="logo">TV</div><div><b style="font-size:14px">TvBox Control</b><span style="font-size:11px;color:var(--ac);display:block">Global Play Store Console</span></div></div>
+  <button class="nb act" onclick="tab('dash',this)"><span>📺 Dashboard & Live</span></button>
+  <button class="nb" onclick="tab('lists',this)"><span>📋 Liste, MAC & Categorie</span></button>
+  <button class="nb" onclick="tab('devs',this)"><span>📡 Dispositivi & Coda</span><span id="qBadge" class="bg" style="display:none">0</span></button>
+  <button class="nb" onclick="tab('themes',this)"><span>🎨 Temi & Sfondo TV</span></button>
+  <button class="nb" onclick="tab('epg',this)"><span>📅 EPG, Cineteca & Backup</span></button>
+  <div class="st"><div><span id="dot" class="dot"></span><b id="cLbl">Preview Offline</b></div><div style="color:var(--sub);margin-top:4px" id="cSub">Seleziona un dispositivo in alto</div></div>
+</aside>
+<main class="main">
+  <header class="top">
+    <div id="devBar" class="devbar"></div>
+    <div class="row">
+      <select id="thSel" style="width:auto;padding:5px 9px;font-size:11.5px;font-weight:700" onchange="setTheme(this.value)">
+        <option value="">🌊 Blu Zaffiro</option>
+        <option value="th-gray">🪨 Grigio Ardesia</option>
+        <option value="th-light">❄️ Ghiaccio Chiaro</option>
+        <option value="th-dark">🌑 Notte Profonda</option>
+      </select>
+      <button id="pwaBtn" class="btn bs" style="display:none;padding:6px 11px;font-size:11.5px" onclick="installPwa()">📲 Installa App</button><button class="btn bc" style="padding:5px 9px;font-size:11px" onclick="toast('PC: Menu ⋮ → App → Installa | iPad/Tel: Condividi → Schermata Home')">🪟 Stacca Finestra</button>
+    </div>
+  </header>
+  <div class="cnt">
+    <section id="tab-dash" class="vw act">
+      <div class="g2">
+        <div class="cd"><h3><span>📡 Dispositivo Attivo</span><button class="btn bc" style="padding:4px 9px;font-size:11px" onclick="refresh()">Aggiorna</button></h3>
+          <div style="background:var(--bg);padding:13px;border-radius:10px;border:1px solid var(--bd)"><span class="bg" id="cGrp">LIVE</span><div style="font-size:17px;font-weight:800;margin:5px 0" id="cCh">Shield TV Salotto</div><div style="font-size:12px;color:var(--sub)" id="cNow">Pronto: se la TV è spenta, ogni modifica va in Coda Sync.</div></div>
+          <div class="row" style="margin-top:12px">
+            <div style="flex:1;background:var(--bg);padding:10px;border-radius:9px;border:1px solid var(--bd)"><div style="font-size:11px;color:var(--sub)">Canali Live</div><b id="stLive" style="font-size:16px;color:var(--ac)">0</b></div>
+            <div style="flex:1;background:var(--bg);padding:10px;border-radius:9px;border:1px solid var(--bd)"><div style="font-size:11px;color:var(--sub)">Categorie Attive</div><b id="stCats" style="font-size:16px;color:var(--ok)">0</b></div>
+            <div style="flex:1;background:var(--bg);padding:10px;border-radius:9px;border:1px solid var(--bd)"><div style="font-size:11px;color:var(--sub)">Liste Salvate</div><b id="stPls" style="font-size:16px">0</b></div>
+          </div>
+        </div>
+        <div class="cd"><h3><span>🎮 Telecomando Rapido</span></h3>
+          <div class="dp"><div></div><button onclick="cmd('up')">▲</button><div></div><button onclick="cmd('left')">◀</button><button class="ok" onclick="cmd('ok')">OK</button><button onclick="cmd('right')">▶</button><button onclick="cmd('back')">↩</button><button onclick="cmd('down')">▼</button><button onclick="cmd('home')">⌂</button></div>
+          <div class="row" style="justify-content:center;margin-top:10px"><button class="btn bc" onclick="cmd('ch_down')">CH-</button><button class="btn bc" onclick="cmd('ch_up')">CH+</button><button class="btn bc" onclick="cmd('vol_down')">VOL-</button><button class="btn bc" onclick="cmd('vol_up')">VOL+</button><button class="btn bd" onclick="cmd('restart')">🔄 Riavvia Player</button></div>
+        </div>
+      </div>
+      <div class="cd"><h3><span>📺 Zapping Rapido Canali (LAN Diretta)</span></h3><div class="row" style="margin-bottom:8px"><input id="qCh" placeholder="Cerca canale..." style="flex:2" oninput="rCh()"><select id="catSel" style="flex:1" onchange="rCh()"><option value="">Tutte le categorie</option></select></div><div id="chList" style="max-height:210px;overflow-y:auto"><div style="color:var(--sub);font-size:12px">I canali appariranno qui quando sei sulla rete LAN della TV.</div></div></div>
+    </section>
+    <section id="tab-lists" class="vw">
+      <div class="g2">
+        <div class="cd">
+          <h3><span>📋 Liste & Portali MAC (Player + Cassaforte)</span><button class="btn bp" style="padding:4px 10px;font-size:11.5px" onclick="newPlForm()">➕ Nuova Lista</button></h3>
+          <div id="masterPlList"></div>
+          <div id="addFormBox" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--bd)">
+            <div style="background:var(--bg);border:1px dashed var(--ac);border-radius:9px;padding:9px;margin-bottom:8px">
+              <div class="row" style="justify-content:space-between;margin-bottom:5px"><b style="font-size:11.5px;color:var(--ac)">✨ Auto-Compila da Testo o Screenshot (Ctrl+V)</b><button class="btn bc" style="padding:3px 8px;font-size:11px" onclick="ocrIn.click()">📷 Screenshot</button><input type="file" id="ocrIn" accept="image/*" style="display:none" onchange="runOcr(this.files)"></div>
+              <textarea id="smartBox" rows="2" placeholder="Incolla URL/MAC/User/Pass oppure premi Ctrl+V con uno screenshot..." oninput="smartParse(this.value)"></textarea>
+              <div id="ocrStat" style="font-size:11px;color:var(--wn);margin-top:4px;display:none"></div>
+            </div>
+            <div class="row" style="margin-bottom:6px"><button id="tStalker" class="btn bp" onclick="plT('stalker')">Stalker MAC</button><button id="tXtream" class="btn bc" onclick="plT('xtream')">Xtream</button><button id="tM3u" class="btn bc" onclick="plT('m3u')">M3U URL</button><button class="btn bc" onclick="fileIn.click()">📂 File .m3u</button><input type="file" id="fileIn" accept=".m3u,.m3u8,.txt" style="display:none" onchange="upFile(this.files)"></div>
+            <div class="row"><input id="plName" placeholder="Nome Lista / Portale" style="flex:1"><select id="plVpn" style="flex:1"><option value="any">🌐 VPN: Qualsiasi</option><option value="off">🚫 No VPN (Consigliato DTT)</option><option value="required">🛡️ Richiede VPN (Consigliato MAC)</option></select></div>
+            <label>URL Server / Lista M3U</label><input id="plUrl" placeholder="http://server.com oppure http://.../lista.m3u">
+            <div id="bStalker"><label>Indirizzo MAC</label><input id="plMac" placeholder="00:1A:79:XX:XX:XX"><div class="row"><input id="plSn" placeholder="Serial (opz.)" style="flex:1"><input id="plDev1" placeholder="Device ID 1 (opz.)" style="flex:1"><input id="plDev2" placeholder="Device ID 2 (opz.)" style="flex:1"></div></div>
+            <div id="bXtream" style="display:none"><div class="row" style="margin-top:6px"><input id="plUser" placeholder="Username" style="flex:1"><input id="plPass" type="password" placeholder="Password" style="flex:1"></div></div>
+            <button class="btn bp" style="margin-top:10px;width:100%" onclick="previewPlCats()">🔍 1. Scarica &amp; Leggi Categorie</button>
+          </div>
+        </div>
+        <div class="cd">
+          <h3><span>🗂️ Gestione Categorie, Paesi & VPN</span><span id="edPlBadge" class="bg">Nessuna lista</span></h3>
+          <div id="edInfoBox" style="background:var(--bg);padding:10px;border-radius:9px;border:1px solid var(--bd);font-size:12px;margin-bottom:10px">Seleziona una lista a sinistra per gestire categorie visibili/nascoste, filtri paese automatici e regola VPN.</div>
+          <label>Regola VPN per questa lista</label>
+          <select id="edVpn" onchange="updateSelPlVpn(this.value)"><option value="any">🌐 Qualsiasi (Default)</option><option value="off">🚫 No VPN (Escludi VPN per canali locali/DTT)</option><option value="required">🛡️ VPN Consigliata / Richiesta</option></select>
+          <label style="margin-top:10px">Filtri Rapidi (Paesi rilevati automaticamente nella lista)</label>
+          <div id="countryChips" class="row" style="margin:6px 0 8px"></div>
+          <input id="catSearch" placeholder="Cerca categoria..." oninput="renderCatChecklist()">
+          <div id="catChecklist" style="max-height:270px;overflow-y:auto;margin-top:8px;padding-right:4px"></div>
+          <button class="btn bs" style="margin-top:12px;width:100%;font-size:14px;padding:11px" onclick="syncEditedList()">🚀 2. Trasmetti al Player</button>
+        </div>
+      </div>
+    </section>
+    <section id="tab-devs" class="vw">
+      <div class="g2">
+        <div class="cd"><h3><span>➕ Aggiungi Dispositivo (LAN o Remoto)</span></h3>
+          <label>Nome Dispositivo</label><input id="dName" placeholder="Es. Shield Salotto / Casa Mare">
+          <label>Tipo Connessione</label><select id="dMode" onchange="dTypeBox.style.display=this.value==='lan'?'block':'none';dCldBox.style.display=this.value==='cloud'?'block':'none'"><option value="lan">🏠 LAN Diretta (Rete Locale)</option><option value="cloud">☁️ Remoto Cloud (Fuori Casa)</option></select>
+          <div id="dTypeBox"><label>Indirizzo IP & Porta (LAN)</label><input id="dIp" placeholder="192.168.1.86:8898"></div>
+          <div id="dCldBox" style="display:none"><div class="row"><div style="flex:2"><label>MAC Dispositivo</label><input id="dMac" placeholder="AA:BB:CC:DD:EE:FF"></div><div style="flex:1"><label>PIN</label><input id="dPin" placeholder="1234"></div></div></div>
+          <button class="btn bs" style="margin-top:12px;width:100%" onclick="saveDev()">💾 Salva Dispositivo</button>
+        </div>
+        <div class="cd"><h3><span>📡 Dispositivi & Coda TV Spente</span><button class="btn bp" style="padding:4px 9px;font-size:11px" onclick="flushQueue()">🔄 Sincronizza</button></h3><div id="devList"></div><h3 style="margin-top:14px"><span>⏳ In Attesa Accensione TV</span></h3><div id="qList"></div></div>
+      </div>
+    </section>
+    <section id="tab-themes" class="vw">
+      <div class="g2">
+        <div class="cd"><h3><span>🎨 Temi Player & Creatore Personalizzato</span><button class="btn bc" style="padding:4px 9px;font-size:11px" onclick="resetThemeStudio()">↺ Reset</button></h3>
+          <label>1. Scegli un Tema Base del Player (1-Clic)</label>
+          <div id="presetBtns" class="row" style="margin:6px 0 10px"></div>
+          <label>2. Personalizza Colori (identici ad AppThemeData)</label>
+          <div class="row">
+            <div style="flex:1"><label>Sfondo (bg)</label><input type="color" id="cBg" value="#0F294A" oninput="updThPrev()"></div>
+            <div style="flex:1"><label>Pannello</label><input type="color" id="cPan" value="#163761" oninput="updThPrev()"></div>
+            <div style="flex:1"><label>Card</label><input type="color" id="cCard" value="#1F477A" oninput="updThPrev()"></div>
+            <div style="flex:1"><label>Accento</label><input type="color" id="cAcc" value="#38BDF8" oninput="updThPrev()"></div>
+            <div style="flex:1"><label>Testo</label><input type="color" id="cTxt" value="#F8FAFC" oninput="updThPrev()"></div>
+          </div>
+          <label style="margin-top:10px">3. Sfondo Personale (PNG / JPG da URL o File Locale)</label>
+          <div class="row"><input id="cBgImg" placeholder="https://.../sfondo.jpg oppure carica PNG/JPG ->" style="flex:1" oninput="updThPrev()"><button class="btn bc" onclick="bgFileIn.click()">🖼️ Sfoglia PNG/JPG</button><button class="btn bd" style="padding:8px 10px" onclick="cBgImg.value='';updThPrev()">✕</button><input type="file" id="bgFileIn" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="loadBgFile(this.files)"></div>
+          <div class="row" style="margin-top:8px">
+            <div style="flex:1"><label>Opacità Pannelli: <b id="opLbl">55%</b></label><input type="range" id="cOp" min="15" max="95" value="55" oninput="opLbl.innerText=this.value+'%';updThPrev()"></div>
+            <div style="flex:1"><label>Nome Tema Personale</label><input id="cThName" placeholder="Es. Mio Tema Blu Notte"></div>
+          </div>
+          <div class="row" style="margin-top:12px"><button class="btn bp" style="flex:1" onclick="sendThemeToTv()">🚀 Applica Tema sulla TV</button><button class="btn bc" onclick="saveCustomTheme()">💾 Salva Tema</button></div>
+        </div>
+        <div class="cd"><h3><span>📺 Anteprima Schermo TV & Temi Salvati</span></h3>
+          <div id="tvMock" style="border-radius:12px;padding:12px;border:2px solid #38BDF8;background:#0F294A;background-size:cover;background-position:center;min-height:195px;display:flex;gap:8px">
+            <div id="mkCol1" style="flex:1;border-radius:8px;padding:8px;background:rgba(22,55,97,.65)"><div style="font-size:10px;font-weight:800;margin-bottom:6px">CATEGORIE</div><div id="mkSel" style="padding:5px 7px;border-radius:6px;font-size:11px;font-weight:800">🇮🇹 IT | GENERALISTI</div><div style="font-size:11px;opacity:.8;padding:4px 7px">⚽ IT | SPORT</div></div>
+            <div id="mkCol2" style="flex:1.2;border-radius:8px;padding:8px;background:rgba(22,55,97,.55)"><div style="font-size:10px;font-weight:800;margin-bottom:6px">CANALI</div><div style="font-size:11.5px;font-weight:700;padding:4px 6px">1. Rai 1 HD</div><div style="font-size:11.5px;opacity:.85;padding:4px 6px">5. Canale 5 HD</div></div>
+            <div id="mkCol3" style="flex:1.3;border-radius:8px;padding:8px;background:rgba(22,55,97,.50)"><div style="height:64px;border-radius:6px;background:#000;display:grid;place-items:center;font-size:10px;color:#38BDF8;margin-bottom:6px">▶ MINI-PLAYER 16:9</div><div style="font-size:10.5px;font-weight:700">20:30 Telegiornale</div></div>
+          </div>
+          <h3 style="margin-top:14px"><span>💾 I Tuoi Temi Personalizzati Salvati</span></h3><div id="savedThList"></div>
+        </div>
+      </div>
+    </section>
+    <section id="tab-epg" class="vw">
+      <div class="g2">
+        <div class="cd"><h3><span>📅 Guide EPG XMLTV (1-Clic)</span></h3><div id="epgBox"></div><label>URL EPG Personalizzato</label><div class="row"><input id="epgIn" placeholder="https://.../epg.xml.gz" style="flex:1"><button class="btn bp" onclick="sendEpg(epgIn.value)">Invia</button></div></div>
+        <div class="cd"><h3><span>🎬 Addon Cineteca & Backup Configurazione</span></h3><label>Addon Cineteca (manifest.json)</label><div class="row"><input id="cIn" placeholder="https://.../manifest.json" style="flex:1"><button class="btn bp" onclick="dispatchAction('/api/cineteca_import','cineteca',{url:cIn.value},'Addon aggiunto!')">Aggiungi</button></div><div class="row" style="margin-top:16px"><button class="btn bc" style="flex:1" onclick="expV()">⬇️ Esporta Cassaforte JSON</button></div><div style="margin-top:12px;padding:10px;background:var(--bg);border-radius:8px;font-size:11.5px;color:var(--ok)">✅ <b>100% Google Play Store-Safe:</b> nessuna funzione vietata; compatibile con Windows, Mac, iPad, iPhone e Android.</div></div>
+      </div>
+    </section>
   </div>
-  <div class="qbar"><button class="qbtn" onclick="cmd('back')">INDIETRO</button><button class="qbtn" onclick="cmd('mute')">MUTE</button><button class="qbtn" onclick="cmd('guide')">GUIDA TV</button><button class="qbtn" onclick="cmd('ok_long')">MENU PLAYER</button><button class="qbtn" onclick="cmd('pip')">PiP</button><button class="qbtn" onclick="cmd('aspect')">ASPETTO</button></div>
-</div></div>
-<div id="p1" class="page"><div class="scroll" style="display:flex;flex-direction:column;gap:8px"><div class="row"><input id="qCh" placeholder="Cerca canale..." oninput="renderCh()"><select id="catSel" onchange="renderCh()"><option value="">Tutte le categorie</option></select></div><div id="chList" class="list"></div></div></div>
-<div id="p2" class="page"><div class="scroll" style="display:flex;flex-direction:column;gap:8px">
-  <div style="background:#0f172a;border:1px solid #38bdf8;border-radius:12px;padding:8px;display:flex;flex-direction:column;gap:6px"><textarea id="raw" rows="2" oninput="autoParse()" onpaste="setTimeout(autoParse,20)" placeholder="Incolla qui messaggio con Portal URL + MAC (es. 00:1A:79:...) o link M3U/Xtream..."></textarea><div class="row"><button class="btn blue" onclick="autoAndSend()">AUTOCOMPILA &amp; INVIA AL BOX</button><label style="padding:9px 12px;border-radius:10px;background:#1e293b;color:#38bdf8;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap">FILE<input type="file" accept=".m3u,.m3u8,.w3u,.txt,.json,.xspf,.pls,.tv" style="display:none" onchange="loadTxtFile(this)"></label></div></div>
-  <div class="row"><select id="t" onchange="togFields()"><option value="m3u">Lista M3U / Wiseplay / Ace</option><option value="xtream">Xtream Codes</option><option value="stalker">Stalker / MAC</option></select><input id="n" placeholder="Nome lista"></div>
-  <input id="u" placeholder="URL Portale / M3U / W3U">
-  <div id="fXt" style="display:none" class="row"><input id="us" placeholder="Username"><input id="pw" placeholder="Password"></div>
-  <div id="fSt" style="display:none;flex-direction:column;gap:6px"><div class="row"><input id="m" placeholder="MAC 00:1A:79:..."><input id="sn" placeholder="S/N"></div><div class="row"><input id="d1" placeholder="Device ID 1"><input id="d2" placeholder="Device ID 2"></div></div>
-  <div class="row"><select id="vp"><option value="any">VPN: Libera</option><option value="no_vpn">VPN: Escludi (DTT)</option><option value="require_vpn">VPN: Richiedi</option><option value="warp_1111">Cloudflare 1.1.1.1</option></select><select id="vc"><option value="">Paese: Auto</option><option value="Italia">Italia</option><option value="Svizzera">Svizzera</option><option value="Regno Unito">Regno Unito</option><option value="Spagna">Spagna</option><option value="Francia">Francia</option><option value="Germania">Germania</option></select></div>
-  <button class="btn" onclick="sendPl()">INVIA LISTA AL TV BOX</button>
-  <div id="plList" class="list"></div>
-</div></div>
-<div id="p3" class="page"><div class="scroll" style="display:flex;flex-direction:column;gap:8px"><textarea id="m3uTxt" rows="8" placeholder="#EXTM3U&#10;#EXTINF:-1,Canale 1&#10;http://..."></textarea><button class="btn" onclick="sendCustomM3u()">INVIA LISTA PERSONALIZZATA</button></div></div>
-<div id="p4" class="page"><div class="scroll" style="display:flex;flex-direction:column;gap:8px">
-  <div style="font-size:11px;font-weight:800;color:#f59e0b">CINETECA WEB (URL LISTA .TXT / SORGENTI)</div>
-  <div class="row"><input id="cinU" placeholder="URL file .txt o link sorgente..."><button class="btn" style="width:auto;padding:9px 12px" onclick="sendCin()">INVIA</button></div>
-  <div style="font-size:11px;font-weight:800;color:#38bdf8">DOWNLOADER SAFE (CODICE BREVE O URL ? DOWNLOAD TV)</div>
-  <div class="row"><input id="dlCode" placeholder="Codice (es. 250931) o URL https://..."><button class="btn" style="width:auto;padding:9px 12px" onclick="dlUrl()">SCARICA</button></div>
-  <div id="dlSt" style="font-size:11px;color:#10b981"></div>
-  <input id="epgU" placeholder="URL Guida TV XMLTV"><button class="btn blue" onclick="sendEpg()">AGGIUNGI GUIDA EPG</button>
-  <button class="btn gray" onclick="restartTv()">RIAVVIA PLAYER SULLA TV</button>
-</div></div>
-<div id="toast" class="toast"></div>
-<div class="nav"><button class="nbtn on" onclick="tab(0,this)">Telecomando</button><button class="nbtn" onclick="tab(1,this)">Canali</button><button class="nbtn" onclick="tab(2,this)">Liste TV</button><button class="nbtn" onclick="tab(3,this)">Editor</button><button class="nbtn" onclick="tab(4,this)">Altro</button></div>
+</main><div id="toast"></div>
 <script>
-let MODE = location.port === "8898" ? "lan" : "cloud";
-const IS_LAN = location.port === "8898";
-let STATE = {channels:[], playlists:[], categories:[], current:null};
+window.onerror=(m,u,l)=>alert('Err '+l+': '+m);
+let PL='stalker',ST={channels:[],categories:[],playlists:[]},SEL_PL_ID=null,DEF_PWA=null;
+const EPGS=[['EPGShare01 Italia (Completo)','https://epgshare01.online'],['Open-EPG Italia 3 (DTT/Rai/Mediaset)','https://open-epg.com'],['Open-EPG Italia 1 (Sky)','https://open-epg.com'],['IPTV-EPG Italia','https://iptv-epg.org']];
+const FLAGS={IT:'🇮🇹 IT',UK:'🇬🇧 UK',US:'🇺🇸 US',ES:'🇪🇸 ES',FR:'🇫🇷 FR',DE:'🇩🇪 DE',PT:'🇵🇹 PT',BR:'🇧🇷 BR',NL:'🇳🇱 NL',PL:'🇵🇱 PL',RO:'🇷🇴 RO',TR:'🇹🇷 TR',GR:'🇬🇷 GR',AL:'🇦🇱 AL',AR:'🇸🇦 AR'};
+const toast=m=>{const t=document.getElementById('toast');t.innerText=m;t.classList.add('sh');setTimeout(()=>t.classList.remove('sh'),2700)};
+function setTheme(v){document.body.className=v;localStorage.setItem('tvbox_ui_theme',v);thSel.value=v}
+const getDevs=()=>{try{const a=JSON.parse(localStorage.getItem('tvbox_devs')||'[]');if(location.port==='8898'&&!a.some(x=>x.ip===location.host))a.unshift({id:'d_lan_auto',name:'TV Box (LAN Diretta)',mode:'lan',ip:location.host,mac:'',pin:''});return a.length?a:[{id:'d1',name:'Shield Salotto',mode:'lan',ip:'192.168.1.86:8898',mac:'',pin:''},{id:'d2',name:'Box Remoto (Esempio)',mode:'cloud',ip:'',mac:'00:1A:79:AA:BB:CC',pin:'1234'}]}catch(_){return[]}};
+const setDevs=a=>{localStorage.setItem('tvbox_devs',JSON.stringify(a));renderDevs()};
+const curDev=()=>{const a=getDevs(),id=localStorage.getItem('tvbox_cur_dev');return a.find(x=>x.id===id)||a.at(0)};
+const selDev=id=>{localStorage.setItem('tvbox_cur_dev',id);renderDevs();refresh();toast('Dispositivo attivo: '+curDev().name)};
+const getQ=()=>{try{return JSON.parse(localStorage.getItem('tvbox_sync_q')||'[]')}catch(_){return[]}};
+const setQ=q=>{localStorage.setItem('tvbox_sync_q',JSON.stringify(q));renderQ()};
+const getV=()=>{try{const a=JSON.parse(localStorage.getItem('tvbox_vault')||'[]');return Array.isArray(a)?a.filter(x=>x.id!=='demo1'):[]}catch(_){return []}};
+const setV=v=>{localStorage.setItem('tvbox_vault',JSON.stringify(v));renderMasterLists()};
+function detectGroupCountry(grp,channels){
+  const u=grp.toUpperCase();
+  const rules=[['UK',/\b(UK|GB|ENGLAND|BRITAIN)\b/],['US',/\b(US|USA|AMERICA)\b/],['FR',/\b(FR|FRA|FRANCE|FRENCH)\b/],['DE',/\b(DE|GER|GERMANY|DEUTSCH)\b/],['ES',/\b(ES|ESP|SPAIN|ESPANA)\b/],['PT',/\b(PT|PORTUGAL)\b/],['BR',/\b(BR|BRA|BRAZIL|BRASIL)\b/],['NL',/\b(NL|NETHERLANDS|HOLLAND)\b/],['PL',/\b(PL|POLAND|POLSKA)\b/],['RO',/\b(RO|ROMANIA)\b/],['TR',/\b(TR|TURKEY|TURK)\b/],['GR',/\b(GR|GREECE|GREEK)\b/],['AL',/\b(AL|ALBANIA|SHQIP)\b/],['AR',/\b(AR|ARAB|ARABIC|BEIN)\b/]];
+  for(const [code,rx] of rules){if(rx.test(u))return code;}
+  if(/\b(RAI|MEDIASET|TIVUSAT|PRIMAFILA|LA7|DMAX|REAL TIME|BOING|CARTOONITO|SKY UNO|CANALE 5|ITALIA 1)\b/.test(u))return 'IT';
+  if(/\b(BBC|ITV|CHANNEL 4|BT SPORT|TNT SPORTS)\b/.test(u))return 'UK';
+  if(/\b(TF1|CANAL\+|RMC|FRANCE 2)\b/.test(u))return 'FR';
+  if(/\b(ARD|ZDF|PROSIEBEN)\b/.test(u))return 'DE';
+  if(/\b(MOVISTAR|ANTENA 3|TELECINCO)\b/.test(u))return 'ES';
+  const chs=(channels||[]).filter(c=>c.group===grp).slice(0,20);
+  if(chs.length){let it=0,uk=0,fr=0;for(const c of chs){const cn=c.name.toUpperCase();if(/^(IT|ITA)\b|\b(RAI\s*[1-5]|CANALE\s*5|ITALIA\s*1|RETE\s*4|LA7|TV8|NOVE)\b/.test(cn))it++;else if(/^(UK|GB)\b|\b(BBC|ITV)\b/.test(cn))uk++;else if(/^(FR)\b|\b(TF1|FRANCE\s*2|M6)\b/.test(cn))fr++;}if(it>=2&&it>=chs.length*.25)return 'IT';if(uk>=2&&uk>=chs.length*.25)return 'UK';if(fr>=2&&fr>=chs.length*.25)return 'FR';}
+  if(/\b(INTRATTENIMENTO|DOCUMENTARI|BAMBINI|NOTIZIE|GENERALISTI)\b/.test(u))return 'IT';
+  return 'OTHER';
+}
+function selectedPl(){const v=getV();return v.find(x=>x.id===SEL_PL_ID)||v.at(0)}
+async function delMasterPl(id){const p=getV().find(x=>x.id===id);setV(getV().filter(x=>x.id!==id));if(p)await dispatchAction('/api/delete_playlist','delete_playlist',{id:[p.id,p.name||'',p.url||'',p.mac||''].join('|')},'🗑️ Lista rimossa dalla TV!')}function renderMasterLists(){
+  const v=getV();stPls.innerText=v.length;if(!SEL_PL_ID&&v.length)SEL_PL_ID=v.at(0).id;
+  masterPlList.innerHTML=v.map(p=>{
+    const sel=p.id===SEL_PL_ID,cats=p.sampleCats||(ST.categories||[]),hid=p.hiddenCats||[];
+    const vpnLbl=p.vpnPolicy==='off'?'🚫 No VPN':(p.vpnPolicy==='required'?'🛡️ VPN Consigliata':'🌐 VPN Qualsiasi');
+    return `<div class="it ${sel?'sel':''}" style="cursor:pointer" onclick="SEL_PL_ID='${p.id}';renderMasterLists();if(!selectedPl().sampleCats||!selectedPl().sampleCats.length)previewPlCats(selectedPl())">
+      <div style="min-width:0;flex:1"><div class="row"><b>${p.name}</b><span class="bg">${p.type.toUpperCase()}</span><span class="bg" style="color:var(--wn)">${vpnLbl}</span></div>
+      <div style="font-size:11px;color:var(--sub);margin-top:3px">📂 Categorie: <b>${Math.max(0,cats.length-hid.length)}</b> attive / ${hid.length} nascoste</div></div>
+      <div class="row"><button class="btn bp" style="padding:5px 9px;font-size:11px" onclick="event.stopPropagation();dispatchAction('/api/add_playlist','add_playlist',selectedPl(),'🚀 Inviata!')">Attiva</button>
+      <button class="btn bd" style="padding:5px 8px;font-size:11px" onclick="event.stopPropagation();setV(getV().filter(x=>x.id!=='${p.id}'));delMasterPl('${p.id}')">🗑</button></div></div>`;
+  }).join('');renderCatEditor();
+}
+function renderCatEditor(){
+  const p=selectedPl();if(!p)return;edPlBadge.innerText=p.name;edVpn.value=p.vpnPolicy||'any';
+  const cats=p.sampleCats||(ST.categories||[]),hid=new Set(p.hiddenCats||[]);
+  edInfoBox.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;gap:6px"><span><b>${p.name}</b> (${p.type.toUpperCase()}) • Totale: <b>${cats.length}</b> • Visibili: <b style="color:var(--ok)">${cats.length-hid.size}</b> • Nascoste: <b style="color:var(--wn)">${hid.size}</b></span><button class="btn bs" style="padding:4px 8px;font-size:11px" onclick="previewPlCats(selectedPl())">🔍 Scarica</button></div>`;
+  const found=new Set();cats.forEach(c=>{const code=detectGroupCountry(c,ST.channels);if(code!=='OTHER')found.add(code);});
+  let chips=`<button class="chip" onclick="applyCatFilter('ALL')">✅ Tutte</button>`;
+  for(const code of found)chips+=`<button class="chip" onclick="applyCatFilter('${code}')">${FLAGS[code]||code}</button>`;
+  countryChips.innerHTML=chips+`<button class="chip" onclick="applyCatFilter('SPORT')">⚽ Sport</button><button class="chip" onclick="applyCatFilter('MOVIES')">🎬 Cinema</button><button class="chip" onclick="applyCatFilter('NONE')">❌ Nessuna</button>`;
+  renderCatChecklist();
+}
+function renderCatChecklist(){const p=selectedPl();if(!p)return;const cats=p.sampleCats||(ST.categories||[]),hid=new Set(p.hiddenCats||[]),q=(catSearch.value||'').toLowerCase();catChecklist.innerHTML=cats.filter(c=>!q||c.toLowerCase().includes(q)).map(c=>{const on=!hid.has(c),code=detectGroupCountry(c,ST.channels);return `<label style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--bg);border:1px solid var(--bd);border-radius:8px;margin-bottom:5px;cursor:pointer;color:var(--tx);font-size:12.5px"><span><input type="checkbox" ${on?'checked':''} style="width:auto;margin-right:8px" onchange="toggleOneCat('${c.replace(/'/g,"\\'")}',this.checked)">${c}</span><span class="bg">${FLAGS[code]||'🌐'}</span></label>`;}).join('')||'<div style="color:var(--sub);font-size:12px">Nessuna categoria.</div>'}
+function ensureVaultPl(){const v=getV();let p=v.find(x=>x.id===SEL_PL_ID);if(!p){const tv=(window.TV_PLAYLISTS||[]).find(x=>x.id===SEL_PL_ID);if(tv){p={...tv,sampleCats:tv.sampleCats||(ST.categories||[]),hiddenCats:tv.hiddenCats||[]};v.unshift(p);}}return{v,p}}
+function toggleOneCat(cat,vis){const{v,p}=ensureVaultPl();if(!p)return;const h=new Set(p.hiddenCats||[]);vis?h.delete(cat):h.add(cat);p.hiddenCats=[...h];const tv=(window.TV_PLAYLISTS||[]).find(x=>x.id===p.id);if(tv)tv.hiddenCats=p.hiddenCats;setV(v)}
+function applyCatFilter(m){const{v,p}=ensureVaultPl();if(!p)return;const cats=p.sampleCats||(ST.categories||[]),h=new Set();for(const c of cats){if(m==='NONE')h.add(c);else if(m==='SPORT'){if(!/sport|calcio|football|f1|moto|dazn|sky sport/i.test(c))h.add(c)}else if(m==='MOVIES'){if(!/cinema|film|movie|vod|serie/i.test(c))h.add(c)}else if(m!=='ALL'){if(detectGroupCountry(c,ST.channels)!==m)h.add(c)}}p.hiddenCats=[...h];const tv=(window.TV_PLAYLISTS||[]).find(x=>x.id===p.id);if(tv)tv.hiddenCats=p.hiddenCats;setV(v);toast('Filtro applicato: '+m)}
+function updateSelPlVpn(val){const{v,p}=ensureVaultPl();if(p){p.vpnPolicy=val;setV(v)}}
+async function previewPlCats(existing){const it=existing||{id:'pl_'+Date.now(),name:plName.value.trim()||'Lista IPTV',type:PL,url:(/^https?:\/\//i.test(plUrl.value.trim())?plUrl.value.trim():'http:/'+'/'+plUrl.value.trim()),mac:plMac.value.trim().toUpperCase(),sn:plSn.value.trim(),deviceId:plDev1.value.trim(),deviceId2:plDev2.value.trim(),username:plUser.value.trim(),password:plPass.value.trim(),vpnPolicy:plVpn.value,hiddenCats:[],sampleCats:[]};if(!it.url)return toast('Inserisci URL!');const d=curDev();if(d.mode!=='lan')return toast('Collega prima la TV in LAN!');toast('🔍 Scaricamento categorie in corso...');try{const r=await fetch('http:/'+'/'+d.ip+'/api/preview_categories',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(it)});const j=await r.json();if(!r.ok||!Array.isArray(j.categories))throw new Error((j&&j.err)||'Portata/VPN non raggiungibile');it.sampleCats=j.categories;const v=getV().filter(x=>x.id!==it.id&&!(x.url===it.url&&x.mac===it.mac&&x.username===it.username));v.unshift(it);SEL_PL_ID=it.id;setV(v);toast(`✅ Trovate ${j.categories.length} categorie (${j.count} canali)! Scegli e invia.`)}catch(err){toast('❌ '+(err&&err.message?err.message:'Verifica URL/MAC/VPN sulla Shield TV'))}}async function syncEditedList(){let p=selectedPl();if(!p&&plUrl.value.trim()){p={id:'pl_'+Date.now(),name:plName.value.trim()||'Lista IPTV',type:PL,url:(/^https?:\/\//i.test(plUrl.value.trim())?plUrl.value.trim():'http:/'+'/'+plUrl.value.trim()),mac:plMac.value.trim().toUpperCase(),sn:plSn.value.trim(),deviceId:plDev1.value.trim(),deviceId2:plDev2.value.trim(),username:plUser.value.trim(),password:plPass.value.trim(),vpnPolicy:plVpn.value,hiddenCats:[]};const v=getV();v.unshift(p);SEL_PL_ID=p.id;setV(v);}if(!p)return toast('Inserisci prima una lista o un file .m3u!');if(p.type==='m3u_file'){const c=(window.MEM_FILES&&window.MEM_FILES[p.id])||'';if(!c)return toast('⚠️ Riseleziona il file .m3u dal tasto 📂 File .m3u');await dispatchAction('/api/upload_m3u','upload_m3u',{name:p.name,content:filterM3uByHidden(c,p.hiddenCats||[]),hiddenCats:p.hiddenCats||[]},'🚀 File .m3u e Categorie Nascoste inviati alla Shield!');return;}await dispatchAction('/api/add_playlist','add_playlist',p,'🚀 Lista e Categorie Nascoste inviate alla Shield!')}
+function newPlForm(){plName.value=plUrl.value=plMac.value=plSn.value=plDev1.value=plDev2.value=smartBox.value='';plName.focus()}
+async function dispatchAction(path,cloudType,payload,okMsg){const d=curDev();if(d.mode==='lan'){try{const r=await fetch('http://'+d.ip+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});if(r.ok){if(okMsg)toast(okMsg);return true}}catch(_){}}const q=getQ();q.push({id:'q_'+Date.now(),devId:d.id,devName:d.name,devMode:d.mode,path,cloudType,payload,ts:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})});setQ(q);toast('⏳ TV spenta/offline: salvato in Coda Sync per '+d.name);return false}
+async function flushQueue(){const q=getQ();if(!q.length)return toast('Coda vuota.');const rem=[];let s=0;for(const it of q){const d=getDevs().find(x=>x.id===it.devId)||curDev();if(d.mode==='lan'){try{const r=await fetch('http://'+d.ip+it.path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(it.payload)});if(r.ok){s++;continue}}catch(_){}}rem.push(it)}setQ(rem);toast(s?`✅ Sincronizzate ${s} modifiche!`:'⏳ Dispositivi ancora spenti')}
+const cmd=c=>dispatchAction('/api/remote_cmd','remote_cmd',{cmd:c},'Comando: '+c.toUpperCase());
+function tab(id,b){document.querySelectorAll('.vw').forEach(v=>v.classList.remove('act'));document.querySelectorAll('.nb').forEach(x=>x.classList.remove('act'));document.getElementById('tab-'+id).classList.add('act');b.classList.add('act');if(id==='lists')renderMasterLists();if(id==='themes')initThemeStudio();if(id==='devs'){renderDevs();renderQ()}}
+function plT(t){PL=t;['Stalker','Xtream','M3u'].forEach(k=>document.getElementById('t'+k).className='btn '+(k.toLowerCase()===t?'bp':'bc'));bStalker.style.display=t==='stalker'?'block':'none';bXtream.style.display=t==='xtream'?'block':'none'}
+async function addPl(){if(plUrl.value.trim().startsWith('FILE_LOCALE://')&&window.CUR_FILE_ID&&window.MEM_FILES[window.CUR_FILE_ID]){const sp=selectedPl(),hc=(sp&&sp.id===window.CUR_FILE_ID&&sp.hiddenCats)||[];await dispatchAction('/api/upload_m3u','upload_m3u',{name:plName.value.trim()||'Lista M3U',content:filterM3uByHidden(window.MEM_FILES[window.CUR_FILE_ID],hc),hiddenCats:hc},'🚀 File .m3u inviato alla Shield TV!');return;}const it={id:'pl_'+Date.now(),name:plName.value.trim()||'Lista IPTV',type:PL,url:(/^https?:\/\//i.test(plUrl.value.trim())?plUrl.value.trim():'http:/'+'/'+plUrl.value.trim()),mac:plMac.value.trim().toUpperCase(),sn:plSn.value.trim(),deviceId:plDev1.value.trim(),deviceId2:plDev2.value.trim(),username:plUser.value.trim(),password:plPass.value.trim(),vpnPolicy:plVpn.value,hiddenCats:[]};if(!plUrl.value.trim())return toast('Inserisci URL o scegli un file .m3u!');const v=getV().filter(x=>!(x.url===it.url&&x.mac===it.mac));v.unshift(it);SEL_PL_ID=it.id;setV(v);await dispatchAction('/api/add_playlist','add_playlist',it,'🚀 Inviata!')}
+function expV(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(getV(),null,2)],{type:'application/json'}));a.download='tvbox_cassaforte.json';a.click()}
+window.MEM_FILES=window.MEM_FILES||{};function extractXtreamFromM3u(txt){const m=txt.match(/^https?:\/\/([^\/\s]+)\/(?:live\/|movie\/|series\/)?([^\/\s?#]+)\/([^\/\s?#]+)\/\d+/im);if(!m)return null;const proto=(txt.match(/(https?):\/\/[^\/\s]+\/(?:live\/|movie\/|series\/)?[^\/\s?#]+\/[^\/\s?#]+\/\d+/i)||['','http'])[1];return{url:proto+':/'+'/'+m[1],username:m[2],password:m[3]}}function filterM3uByHidden(txt,hid){if(!hid||!hid.length)return txt;const hs=new Set(hid),ls=txt.split(/\r?\n/),out=['#EXTM3U'];let skip=false;for(const l of ls){if(l.startsWith('#EXTINF')){const gm=l.match(/group-title=["']?([^"',\r\n]+)["']?/i);skip=gm?hs.has(gm[1].trim()):false;if(!skip)out.push(l)}else if(l.startsWith('#')){if(!skip&&!l.startsWith('#EXTM3U'))out.push(l)}else if(l.trim()){if(!skip)out.push(l);skip=false}}return out.join('\n')}function upFile(fl){try{const f=fl&&(fl.length!==undefined?fl.item(0):fl);if(!f)return;const id='pl_'+Date.now(),nm=f.name.replace(/\.[^.]+$/,'');toast('⏳ Analisi '+f.name+'...');const fr=new FileReader();fr.onload=()=>{try{const txt=String(fr.result||'');const cats=[...new Set([...txt.matchAll(/group-title=["']?([^"',\r\n]+)["']?/ig)].map(m=>m[1].trim()).filter(Boolean))];const xt=extractXtreamFromM3u(txt);let it;if(xt){plT('xtream');plName.value=nm;plUrl.value=xt.url;plUser.value=xt.username;plPass.value=xt.password;it={id,name:nm,type:'xtream',url:xt.url,username:xt.username,password:xt.password,vpnPolicy:plVpn.value||'any',hiddenCats:[],sampleCats:cats};toast(`✨ Estratto link Xtream (${cats.length} categorie)! Scegli e invia.`)}else{window.MEM_FILES[id]=txt;window.CUR_FILE_ID=id;plT('m3u');plName.value=nm;plUrl.value='FILE_LOCALE:/'+'/'+f.name;it={id,name:nm,type:'m3u_file',url:'FILE_LOCALE:/'+'/'+f.name,vpnPolicy:plVpn.value||'any',hiddenCats:[],sampleCats:cats};toast(`✅ ${nm}: ${cats.length} categorie! Scegli e invia.`)}const v=getV().filter(x=>x.id!=='demo1'&&x.name!==it.name);v.unshift(it);SEL_PL_ID=it.id;setV(v);fileIn.value=''}catch(e){toast('❌ Errore parsing: '+e.message)}};fr.onerror=()=>toast('❌ Copia prima il file su Desktop/Download del PC!');fr.readAsText(f)}catch(e){toast('❌ Errore file: '+e.message)}}
+const sendEpg=u=>u?dispatchAction('/api/add_epg','add_epg',{url:u},'📅 EPG inviato!'):toast('Inserisci URL');
+function saveDev(){const n=dName.value.trim();if(!n)return toast('Inserisci nome');const a=getDevs();a.push({id:'d_'+Date.now(),name:n,mode:dMode.value,ip:dIp.value.trim()||'192.168.1.86:8898',mac:dMac.value.trim().toUpperCase(),pin:dPin.value.trim()});setDevs(a);dName.value='';toast('✅ Dispositivo aggiunto!')}
+function renderDevs(){const a=getDevs(),c=curDev();devBar.innerHTML=a.map(d=>`<button class="devchip ${d.id===c.id?'act':''}" onclick="selDev('${d.id}')"><span class="${d.mode==='lan'?'tag-lan':'tag-cld'}">${d.mode==='lan'?'🏠 LAN':'☁️ REMOTO'}</span>${d.name}</button>`).join('');cCh.innerText=c.name;cGrp.innerText=c.mode==='lan'?'🏠 LAN: '+c.ip:'☁️ REMOTO • PIN '+c.pin;cSub.innerText=c.mode==='lan'?'LAN Diretta ('+c.ip+')':'Cloud Relay ('+c.mac+')';if(document.getElementById('devList'))devList.innerHTML=a.map((d,i)=>`<div class="it"><div><b>${d.name}</b> <span class="${d.mode==='lan'?'tag-lan':'tag-cld'}">${d.mode==='lan'?'LAN '+d.ip:'REMOTO '+d.mac}</span></div><div class="row"><button class="btn bp" style="padding:5px 9px;font-size:11px" onclick="selDev('${d.id}')">Usa</button>${a.length>1?`<button class="btn bd" style="padding:5px 8px;font-size:11px" onclick="const x=getDevs();x.splice(${i},1);setDevs(x)">🗑</button>`:''}</div></div>`).join('')}
+function renderQ(){const q=getQ();qBadge.style.display=q.length?'inline-block':'none';qBadge.innerText=q.length;if(document.getElementById('qList'))qList.innerHTML=q.length?q.map((x,i)=>`<div class="it"><div><b>${x.devName}</b> <span class="bg">${x.cloudType}</span> <span style="font-size:11px;color:var(--sub)">${x.ts}</span></div><button class="btn bd" style="padding:4px 8px;font-size:11px" onclick="const a=getQ();a.splice(${i},1);setQ(a)">Annulla</button></div>`).join(''):'<div style="color:var(--sub);font-size:12px">Nessuna modifica in attesa.</div>'}
+function rCh(){const q=(qCh.value||'').toLowerCase(),c=catSel.value,l=(ST.channels||[]).filter(x=>(!c||x.group===c)&&(!q||x.name.toLowerCase().includes(q))).slice(0,120);if(l.length)chList.innerHTML=l.map(x=>`<div class="it" style="cursor:pointer" onclick="dispatchAction('/api/play_channel','play',{id:'${x.id}'},'Cambio canale')"><div><b>${x.num}. ${x.name}</b> <span class="bg">${x.group}</span></div><span style="color:var(--ac)">▶</span></div>`).join('')}
+async function refresh(){const d=curDev();dot.classList.remove('on');if(d.mode!=='lan'){cLbl.innerText='Modalità Remota Cloud';return}try{const r=await fetch('http://'+d.ip+'/api/state');ST=await r.json();dot.classList.add('on');cLbl.innerText='Online (LAN)';stLive.innerText=(ST.channels||[]).length;stCats.innerText=(ST.categories||[]).length;if(ST.current){cCh.innerText=ST.current.name;cGrp.innerText=ST.current.group||'LIVE';cNow.innerText='In riproduzione su '+d.name}catSel.innerHTML='<option value="">Tutte le categorie</option>'+(ST.categories||[]).map(c=>`<option value="${c}">${c}</option>`).join('');if(Array.isArray(ST.playlists)&&ST.playlists.length){const v=getV().filter(x=>x.id!=='demo1');for(const tp of ST.playlists){const ix=v.findIndex(x=>x.id===tp.id||(x.url===tp.url&&x.mac===tp.mac));const cats=(tp.allCats&&tp.allCats.length)?tp.allCats:(ST.categories||[]);const item={id:tp.id,name:tp.name,type:tp.type,url:tp.url,mac:tp.mac||'',username:tp.username||'',vpnPolicy:tp.vpnPolicy||'any',hiddenCats:tp.hiddenCats||[],sampleCats:cats};if(ix>=0)v[ix]={...v.at(ix),...item,sampleCats:cats.length?cats:(v.at(ix).sampleCats||[])};else v.push(item);}setV(v);}rCh();flushQueue()}catch(_){cLbl.innerText='TV Spenta / Offline (Coda Attiva)'}}
+function smartParse(raw){if(!raw||!raw.trim())return;const uM=raw.match(/https?:\/\/[^\s"'<>]+/i),macM=raw.match(/\b([0-9A-Fa-f]{2}(?::[0-9A-Fa-f]{2}){5})\b/),snM=raw.match(/(?:sn|serial(?:\s*number)?)\s*[:=\-]\s*([A-Za-z0-9\-_]{6,32})/i),d1M=raw.match(/(?:device\s*id\s*1?|dev1)\s*[:=\-]\s*([A-Fa-f0-9]{16,64})/i),d2M=raw.match(/(?:device\s*id\s*2|dev2)\s*[:=\-]\s*([A-Fa-f0-9]{16,64})/i);let usr='',pwd='',baseUrl=uM?uM.at(0).trim():'';if(baseUrl){try{const u=new URL(baseUrl);if(u.searchParams.get('username'))usr=u.searchParams.get('username');if(u.searchParams.get('password'))pwd=u.searchParams.get('password');if(!plName.value.trim())plName.value=u.hostname.replace(/^www\./,'').split('.').at(0).toUpperCase();if(usr&&pwd)baseUrl=u.origin}catch(_){}}if(!usr){const um=raw.match(/(?:user(?:name)?|utente)\s*[:=\-]\s*([^\s\r\n]+)/i);if(um)usr=um.at(1)}if(!pwd){const pm=raw.match(/(?:pass(?:word)?|pwd)\s*[:=\-]\s*([^\s\r\n]+)/i);if(pm)pwd=pm.at(1)}if(macM){plT('stalker');plMac.value=macM.at(0).toUpperCase();if(baseUrl)plUrl.value=baseUrl;if(snM)plSn.value=snM.at(1);if(d1M)plDev1.value=d1M.at(1);if(d2M)plDev2.value=d2M.at(1);plVpn.value='required';toast('✨ Portale Stalker MAC auto-compilato!')}else if(usr&&pwd){plT('xtream');plUrl.value=baseUrl;plUser.value=usr;plPass.value=pwd;toast('✨ Account Xtream auto-compilato!')}else if(baseUrl){plT('m3u');plUrl.value=baseUrl;toast('✨ Lista M3U auto-compilata!')}}
+async function runOcr(file){if(!file)return;ocrStat.style.display='block';ocrStat.innerText='⏳ Estrazione testo dallo screenshot...';try{const b64=await new Promise((ok,no)=>{const fr=new FileReader();fr.onload=()=>ok(fr.result);fr.onerror=no;fr.readAsDataURL(file)});const d=curDev(),ep=d.mode==='lan'?'http:/'+'/'+d.ip+'/api/ocr':'https:/'+'/api.ocr.space/parse/image';let txt='';if(d.mode==='lan'){const r=await fetch(ep,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:b64})});const j=await r.json();txt=(j&&j.text)||''}else{const fd=new FormData();fd.append('apikey','helloworld');fd.append('language','ita');fd.append('OCREngine','2');fd.append('base64Image',b64);const r=await fetch(ep,{method:'POST',body:fd});const j=await r.json();txt=(j&&j.ParsedResults&&j.ParsedResults.at(0)&&j.ParsedResults.at(0).ParsedText)||''}if(!txt.trim())throw 0;smartBox.value=txt.trim();smartParse(txt);ocrStat.innerText='✅ Credenziali estratte dallo screenshot!'}catch(_){ocrStat.innerText='⚠️ Impossibile leggere immagine: verifica rete o incolla il testo sopra.'}}
+document.addEventListener('paste',e=>{const items=(e.clipboardData&&e.clipboardData.items)||[];for(const it of items){if(it.type.startsWith('image/')){runOcr(it.getAsFile());break}}});
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();DEF_PWA=e;pwaBtn.style.display='inline-flex'});
+function installPwa(){if(DEF_PWA){DEF_PWA.prompt();DEF_PWA=null}}
+window.onload=()=>{setTheme(localStorage.getItem('tvbox_ui_theme')||'');const m={name:'TvBox Total Control',short_name:'TvBox Control',display:'standalone',capture_links:'existing-client-navigate',background_color:'#0F294A',theme_color:'#0F294A',start_url:location.href};if('serviceWorker' in navigator)navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{});epgBox.innerHTML=EPGS.map(e=>`<div class="it"><div style="min-width:0;flex:1"><b>${e.at(0)}</b><div style="font-size:11px;color:var(--sub);overflow:hidden;text-overflow:ellipsis">${e.at(1)}</div></div><button class="btn bp" style="padding:5px 10px;font-size:11.5px" onclick="sendEpg('${e.at(1)}')">Invia</button></div>`).join('');renderDevs();renderQ();renderMasterLists();refresh()};
 
-function toast(m){
-  const t = document.getElementById("toast");
-  t.innerText = m; t.style.display = "block";
-  clearTimeout(t._tm); t._tm = setTimeout(() => t.style.display = "none", 2600);
+const TV_PRESETS=new Array(
+  {key:'blu_zaffiro',name:'Blu Zaffiro',bg:'#0F294A',panel:'#163761',card:'#1F477A',accent:'#38BDF8',text:'#F8FAFC'},
+  {key:'blu_cobalto',name:'Blu Cobalto e Oro',bg:'#132A5E',panel:'#1B397A',card:'#254A99',accent:'#FBBF24',text:'#FFFFFF'},
+  {key:'blu_petrolio',name:'Blu Petrolio',bg:'#0D3342',panel:'#134559',card:'#1B5973',accent:'#22D3EE',text:'#F0FDFA'},
+  {key:'grigio_ardesia',name:'Grigio Ardesia',bg:'#27303F',panel:'#333E52',card:'#414F66',accent:'#60A5FA',text:'#F8FAFC'},
+  {key:'grigio_titanio',name:'Grigio Titanio',bg:'#323741',panel:'#3E4450',card:'#4B5362',accent:'#84CC16',text:'#F9FAFB'},
+  {key:'grigio_perla_scuro',name:'Grigio Perla',bg:'#3A414E',panel:'#475060',card:'#556073',accent:'#F472B6',text:'#F8FAFC'}
+);
+function hexRgba(h,a){const n=parseInt(h.slice(1),16);return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`}
+function initThemeStudio(){
+  presetBtns.innerHTML=TV_PRESETS.map((x,i)=>`<button class="chip" onclick="applyPreset(${i})">${x.name}</button>`).join('');
+  updThPrev();renderSavedThemes();
 }
-function apiBase(){
-  if (IS_LAN) return "";
-  const ip = (localStorage.getItem("tv_lan_ip") || "").trim();
-  return ip ? ("http://" + ip.replace(/^https?:\/\//, "")) : "";
+function applyPreset(i){const x=TV_PRESETS.at(i);cBg.value=x.bg;cPan.value=x.panel;cCard.value=x.card;cAcc.value=x.accent;cTxt.value=x.text;cThName.value=x.name;updThPrev()}
+function resetThemeStudio(){applyPreset(0);cBgImg.value='';cOp.value=55;opLbl.innerText='55%';updThPrev()}
+function updThPrev(){
+  const op=Number(cOp.value)/100,img=cBgImg.value.trim();
+  tvMock.style.backgroundColor=cBg.value;tvMock.style.borderColor=cAcc.value;tvMock.style.color=cTxt.value;
+  tvMock.style.backgroundImage=img?`url("${img}")`:'none';
+  mkCol1.style.background=hexRgba(cPan.value,op);mkCol2.style.background=hexRgba(cPan.value,Math.max(.15,op-.07));mkCol3.style.background=hexRgba(cPan.value,Math.max(.12,op-.12));
+  mkSel.style.background=cAcc.value;mkSel.style.color='#061629';
 }
-function setMode(m){
-  MODE = m;
-  mCloud.classList.toggle("on", m === "cloud");
-  mLan.classList.toggle("on", m === "lan");
-  cloudBar.style.display = m === "cloud" ? "flex" : "none";
-}
-function openLan(){
-  const ip = (lanIp.value || localStorage.getItem("tv_lan_ip") || "").trim();
-  if (!ip){ toast("Inserisci IP:8898 del TV Box"); lanIp.focus(); return; }
-  localStorage.setItem("tv_lan_ip", ip);
-  const target = ip.includes(":") ? ip : (ip + ":8898");
-  location.href = "http://" + target.replace(/^https?:\/\//, "");
-}
-function savePair(){
-  localStorage.setItem("tv_mac", macIn.value.trim().toUpperCase());
-  localStorage.setItem("tv_pin", pinIn.value.trim());
-  toast("Abbinamento salvato!");
-  refreshState();
-}
-function tab(i, b){
-  document.querySelectorAll(".page").forEach((p, k) => p.classList.toggle("on", k === i));
-  document.querySelectorAll(".nbtn").forEach(x => x.classList.remove("on"));
-  b.classList.add("on");
-  if (i === 1 || i === 2) refreshState();
-}
-function topicFor(mac, pin){
-  const raw = "tvboxtotal_" + mac.trim().toUpperCase() + "_" + pin.trim();
-  let h = 2166136261 >>> 0;
-  for (let i = 0; i < raw.length; i++){
-    h ^= raw.charCodeAt(i);
-    h = Math.imul(h, 16777619) >>> 0;
-  }
-  const cleanMac = mac.trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
-  return "tvbox_" + cleanMac + "_" + h.toString(16);
-}
-async function cloudPush(action, payload){
-  const mac = (macIn.value || localStorage.getItem("tv_mac") || "").trim().toUpperCase();
-  const pin = (pinIn.value || localStorage.getItem("tv_pin") || "").trim();
-  if (!mac || !pin){ toast("Inserisci MAC TV e PIN in alto!"); return false; }
-  localStorage.setItem("tv_mac", mac); localStorage.setItem("tv_pin", pin);
-  const topic = topicFor(mac, pin);
-  try {
-    const r = await fetch("https://ntfy.sh" + topic, {
-      method: "POST",
-      body: JSON.stringify({action, payload, ts: Date.now()})
-    });
-    toast(r.ok ? "Inviato al TV Box via Cloud!" : "Errore invio Cloud");
-    return r.ok;
-  } catch (e) {
-    toast("Errore rete Cloud");
-    return false;
-  }
-}
-function autoParse(){
-  const s = (raw.value || "").trim(); if (!s) return false;
-  const macs = Array.from(s.matchAll(/\b([0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}\b/g), x => x.at(0).toUpperCase().replace(/-/g, ":"));
-  let uM = s.match(/https?:\/\/[^\s"'<>|]+/i);
-  if (!uM) uM = s.match(/\b([a-z0-9-]+(?:\.[a-z0-9-]+)+(?::\d+)?(?:\/[^\s"'<>|]*)?)/i);
-  if (!uM) return false;
-  let url = uM.at(0); if (!/^https?:\/\//i.test(url)) url = "http://" + url;
-  u.value = url;
-  try { if (!n.value.trim()) n.value = new URL(url).hostname; } catch(_){}
-  if (macs.length){
-    t.value = "stalker"; togFields(); m.value = macs.at(0);
-    const snM = s.match(/(?:sn|serial)[^\w]*([A-Za-z0-9]{6,20})/i); if (snM) sn.value = snM.at(1);
-    return true;
-  }
-  if (/username=/i.test(url) && /password=/i.test(url)){
-    try {
-      const p = new URL(url); t.value = "xtream"; togFields();
-      u.value = p.origin; us.value = p.searchParams.get("username") || ""; pw.value = p.searchParams.get("password") || "";
-      return true;
-    } catch(_){}
-  }
-  t.value = "m3u"; togFields(); return true;
-}
-async function autoAndSend(){
-  const s = (raw.value || "").trim();
-  if (!s){ toast("Incolla prima il testo o il link!"); return; }
-  const macs = [...new Set(Array.from(s.matchAll(/\b([0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}\b/g), x => x.at(0).toUpperCase().replace(/-/g, ":")))];
-  if (autoParse() && macs.length > 1){
-    const baseN = n.value.trim() || "Portal";
-    for (let i = 0; i < macs.length; i++){
-      m.value = macs.at(i); n.value = baseN + " #" + (i + 1);
-      await sendPl();
-    }
-    toast("Inviati " + macs.length + " MAC al TV Box!"); return;
-  }
-  if (autoParse()){ await sendPl(); } else { toast("URL o MAC non riconosciuto"); }
-}
-function togFields(){
-  fXt.style.display = t.value === "xtream" ? "flex" : "none";
-  fSt.style.display = t.value === "stalker" ? "flex" : "none";
-}
-async function cmd(c){
-  if (IS_LAN){ await fetch("/api/remote_cmd", {method:"POST", body:JSON.stringify({cmd:c})}); }
-  else { await cloudPush("remote_cmd", {cmd:c}); }
-}
-function loadTxtFile(inp){
-  const f = inp.files && inp.files.item(0); if (!f) return;
-  const r = new FileReader();
-  r.onload = () => {
-    n.value = f.name.replace(/\.[^.]+$/, ""); t.value = "m3u";
-    u.value = "data:audio/x-mpegurl;base64," + btoa(unescape(encodeURIComponent(r.result)));
-    toast("File caricato: " + f.name + " -> premi INVIA");
-  };
-  r.readAsText(f);
-}
-async function sendPl(){
-  if ((raw.value || "").trim() && !u.value.trim()) autoParse();
-  if (!u.value.trim()){ toast("Inserisci URL o carica file"); return; }
-  const pl = {
-    name: n.value.trim() || "Lista TV", type: t.value, url: u.value.trim(),
-    username: us.value.trim(), password: pw.value.trim(), mac: m.value.trim(),
-    sn: sn.value.trim(), deviceId: d1.value.trim(), deviceId2: d2.value.trim(),
-    vpnPolicy: vp.value, vpnCountry: vc.value
-  };
-  if (IS_LAN){
-    await fetch("/api/add_playlist", {method:"POST", body:JSON.stringify(pl)});
-    toast("Lista inviata al TV Box!"); refreshState();
-  } else {
-    await cloudPush("add_playlist", pl);
-  }
-  raw.value = ""; u.value = "";
-}
-async function sendCustomM3u(){
-  const txt = (m3uTxt.value || "").trim(); if (!txt) return;
-  if (IS_LAN){ await fetch("/api/upload_m3u", {method:"POST", body:JSON.stringify({name:"Lista Editor", content:txt})}); toast("Lista inviata!"); }
-  else { await cloudPush("add_playlist", {name:"Lista Editor", type:"m3u", url:"data:audio/x-mpegurl;base64," + btoa(unescape(encodeURIComponent(txt)))}); }
-}
-async function sendCin(){
-  const link = (cinU.value || "").trim(); if (!link) return;
-  if (IS_LAN){ const r = await fetch("/api/cineteca_import", {method:"POST", body:JSON.stringify({url:link})}); const j = await r.json(); toast("Cineteca: +" + (j.added || 0)); }
-  else { await cloudPush("cineteca_import", {url:link}); }
-  cinU.value = "";
-}
-async function dlUrl(){
-  if (!IS_LAN){ toast("Apri modalità Wi-Fi / LAN per scaricare file sul TV Box"); return; }
-  const link = (dlCode.value || "").trim(); if (!link) return;
-  dlSt.innerText = "Download sul TV Box...";
-  const r = await fetch("/api/download_url", {method:"POST", body:JSON.stringify({url:link})});
-  const j = await r.json();
-  dlSt.innerText = r.ok ? ("Salvato in Download: " + j.file) : ("Errore: " + (j.msg || ""));
-}
-async function sendEpg(){
-  const link = (epgU.value || "").trim(); if (!link) return;
-  if (IS_LAN){ await fetch("/api/add_epg", {method:"POST", body:JSON.stringify({url:link})}); toast("EPG inviata!"); }
-  else { await cloudPush("add_epg", {url:link}); }
-  epgU.value = "";
-}
-async function restartTv(){
-  if (IS_LAN){ await fetch("/api/restart_app", {method:"POST"}); toast("Riavvio TV..."); }
-  else { await cloudPush("remote_cmd", {cmd:"restart"}); }
-}
-function renderCh(){
-  const q = (qCh.value || "").toLowerCase(), cat = catSel.value;
-  const list = (STATE.channels || []).filter(c => (!cat || c.group === cat) && (!q || c.name.toLowerCase().includes(q))).slice(0, 200);
-  chList.innerHTML = list.map(c => `<div class="item" onclick="playCh('${c.id}')"><div><b>${c.num}. ${c.name}</b><div class="sub">${c.group}</div></div><span>▶</span></div>`).join("");
-}
-async function playCh(id){
-  if (IS_LAN){ await fetch("/api/play_channel", {method:"POST", body:JSON.stringify({id})}); toast("Cambio canale..."); }
-}
-async function refreshState(){
-  if (!IS_LAN) return;
-  try {
-    const r = await fetch("/api/state"); STATE = await r.json();
-    if (STATE.current){
-      curCh.innerText = STATE.current.name; curGrp.innerText = STATE.current.group || "LIVE";
-      curNow.innerText = STATE.current.now || "In onda"; curBar.style.width = (STATE.current.nowPct || 0) + "%";
-    }
-    catSel.innerHTML = '<option value="">Tutte le categorie</option>' + (STATE.categories || []).map(c => `<option value="${c}">${c}</option>`).join("");
-    plList.innerHTML = (STATE.playlists || []).map(p => `<div class="item"><div><b>${p.name}</b><div class="sub">${p.type}</div></div></div>`).join("");
-    renderCh();
-  } catch(_){}
-}
-window.onload = () => {
-  const qs = new URLSearchParams(location.search);
-  if (qs.get("mac")) localStorage.setItem("tv_mac", qs.get("mac").trim().toUpperCase());
-  if (qs.get("pin")) localStorage.setItem("tv_pin", qs.get("pin").trim());
-  if (qs.get("ip")) localStorage.setItem("tv_lan_ip", qs.get("ip").trim());
-  macIn.value = localStorage.getItem("tv_mac") || "";
-  pinIn.value = localStorage.getItem("tv_pin") || "";
-  lanIp.value = localStorage.getItem("tv_lan_ip") || "";
-  setMode(IS_LAN ? "lan" : "cloud");
-  if (IS_LAN) refreshState();
-};
+function loadBgFile(files){const f=files&&files.at(0);if(!f)return;const r=new FileReader();r.onload=()=>{cBgImg.value=r.result;updThPrev();toast('🖼️ Sfondo PNG/JPG caricato!')};r.readAsDataURL(f)}
+const getThVault=()=>{try{return JSON.parse(localStorage.getItem('tvbox_themes_vault')||'[]')}catch(_){return new Array()}};
+function saveCustomTheme(){const it={id:'th_'+Date.now(),name:cThName.value.trim()||'Tema Custom',bg:cBg.value,panel:cPan.value,card:cCard.value,accent:cAcc.value,text:cTxt.value,opacity:Number(cOp.value)/100,bgImage:cBgImg.value.trim()};const v=getThVault();v.unshift(it);localStorage.setItem('tvbox_themes_vault',JSON.stringify(v));renderSavedThemes();toast('💾 Tema salvato!')}
+function renderSavedThemes(){const v=getThVault();savedThList.innerHTML=v.length?v.map((x,i)=>`<div class="it"><div><b>${x.name}</b> <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${x.bg};border:1px solid ${x.accent};vertical-align:middle"></span> <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${x.accent};vertical-align:middle"></span></div><div class="row"><button class="btn bp" style="padding:4px 9px;font-size:11px" onclick="loadSavedTh(${i})">Carica</button><button class="btn bd" style="padding:4px 8px;font-size:11px" onclick="const a=getThVault();a.splice(${i},1);localStorage.setItem('tvbox_themes_vault',JSON.stringify(a));renderSavedThemes()">🗑</button></div></div>`).join(''):'<div style="color:var(--sub);font-size:12px">Nessun tema personalizzato salvato.</div>'}
+function loadSavedTh(i){const x=getThVault().at(i);if(!x)return;cBg.value=x.bg;cPan.value=x.panel;cCard.value=x.card;cAcc.value=x.accent;cTxt.value=x.text;cThName.value=x.name;cOp.value=Math.round((x.opacity||.55)*100);opLbl.innerText=cOp.value+'%';cBgImg.value=x.bgImage||'';updThPrev()}
+async function sendThemeToTv(){const p={name:cThName.value.trim()||'Tema Console',bg:cBg.value,panel:cPan.value,card:cCard.value,accent:cAcc.value,text:cTxt.value,opacity:Number(cOp.value)/100,bgImage:cBgImg.value.trim()};await dispatchAction('/api/set_theme','set_theme',p,'🎨 Tema e sfondo inviati alla TV!')}
 </script></body></html>
